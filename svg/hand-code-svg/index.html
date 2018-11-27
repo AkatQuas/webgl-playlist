@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Hand Coded SVG</title>
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            background: #e9e9e9;
+        }
+
+        body {
+            margin: 0;
+            text-align: center;
+        }
+
+        div, ::after, ::before {
+            box-sizing: border-box;
+        }
+
+        .grid {
+            width: 750px;
+            height: 500px;
+            margin: 0 auto;
+            padding-top: 100px;
+            padding-left: 100px;
+            background-image: url('../images/grid.png');
+            position: relative;
+        }
+
+        .grid::before {
+            content: "";
+            border-left: 1px solid #7c7cea;
+            position: absolute;
+            top: 0;
+            left: 100px;
+            width: 750px;
+            height: 600px;
+        }
+
+        .grid::after {
+            content: "";
+            border-top: 1px solid #7c7cea;
+            position: absolute;
+            top: 100px;
+            left: 0;
+            width: 850px;
+            height: 500px;
+        }
+
+        svg {
+            stroke: #000;
+            stroke-width: 2px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="grid">
+    <svg width="750" height="500">
+        <line x1="0" y1="0" x2="100" y2="100"></line>
+        <line x1="0" y1="0" x2="0" y2="100"></line>
+        <line x1="0" y1="0" x2="100" y2="0"></line>
+        <line x1="50" y1="0" x2="50" y2="100"></line>
+
+        <!-- a caret two line segment-->
+        <line x1="10" y1="30" x2="80" y2="100"></line>
+        <line x1="10" y1="180" x2="80" y2="100"></line>
+
+        <!-- a caret by polyline -->
+
+        <polyline points="
+            20 30
+            90 100
+            20 180
+            40 280
+            50 180
+        "></polyline>
+
+        <polyline points=" 0 100, 80 180, 100 150 "></polyline>
+
+        <line x1="30" y1="300" x2="30" y2="320"></line>
+        <line x1="10" y1="320" x2="110" y2="320"></line>
+        <rect x="10" y="300" width="100" height="80" rx="10" ry="10"></rect>
+
+        <line x1="150" y1="90" x2="150" y2="130" stroke-width="4"></line>
+        <ellipse cx="150" cy="120" rx="40" ry="40"></ellipse>
+        <ellipse cx="150" cy="140" rx="3" ry="3" stroke-width="6"></ellipse>
+
+        <polygon points="175 240, 135 260, 135 220"></polygon>
+        <ellipse cx="150" cy="240" rx="40" ry="40"></ellipse>
+
+        <path d="M153 334
+            C153 334 151 334 151 334
+            C151 339 153 344 156 344
+            C164 344 171 339 171 334
+            C171 322 164 314 156 314
+            C142 314 131 322 131 334
+            C131 350 142 364 156 364
+            C175 364 191 350 191 334
+            C191 311 175 294 156 294
+            C131 294 111 311 111 334
+            C111 361 131 384 156 384
+            C186 384 211 361 211 334
+            C211 300 186 274 156 274"
+              style="fill:white;stroke:red;stroke-width:2px"/>
+
+        <path d="M140 2
+            L 160 2
+            L 160 52
+            L 175 52
+            L 150 77
+            L 125 52
+            L 140 52
+            Z"/>
+        <path d="M200 2
+            l 20 0
+            l 0 50
+            l 15 0
+            l -25 30
+            l -25 -30
+            l 15 0
+            Z"/>
+
+        <defs>
+            <g id="leftalign">
+                <!-- Left align icon made with lines -->
+                <line x1="3" y1="3" x2="48" y2="3"></line>
+                <line x1="3" y1="19" x2="65" y2="19"></line>
+                <line x1="3" y1="35" x2="48" y2="35"></line>
+                <line x1="3" y1="51" x2="65" y2="51"></line>
+            </g>
+
+            <g id="rightcaret">
+                <!-- Right caret icon made with a polyline -->
+                <polyline points="
+                  3 3
+                  30 28
+                  3 53
+                "></polyline>
+            </g>
+
+            <g id="browser">
+                <!-- Browser icon made with rectangle and lines -->
+                <rect x="3" y="3" width="80" height="60"></rect>
+                <line x1="3" y1="19" x2="83" y2="19"></line>
+                <line x1="20" y1="3" x2="20" y2="17"></line>
+            </g>
+        </defs>
+
+        <use href="#leftalign" x="300" y="10"></use>
+
+        <use href="#rightcaret" x="300" y="100"></use>
+
+        <use href="#browser" x="500" y="100"></use>
+
+        <defs>
+            <symbol id="alert" viewBox="0 0 86 86">
+                <!-- Alert icon made with ellipses and a line -->
+                <ellipse cx="43" cy="43" rx="40" ry="40"></ellipse>
+                <ellipse style="fill:black;" cx="43" cy="65" rx="5" ry="5"></ellipse>
+                <line style="stroke-width: 8px;" x1="43" y1="19" x2="43" y2="48"></line>
+            </symbol>
+
+
+            <symbol id="play" viewBox="0 0 86 86">
+                <!-- Play icon made with ellipse and polygon -->
+                <ellipse cx="43" cy="43" rx="40" ry="40"></ellipse>
+                <polygon points="35 23, 60 43, 35 63"/>
+            </symbol>
+
+            <symbol id="download" viewBox="0 0 64 71">
+                <!-- Download icon made with path -->
+                <path d="
+                  M 18 3
+                  L 46 3
+                  L 46 40
+                  L 61 40
+                  L 32 68
+                  L 3 40
+                  L 18 40
+                  Z
+                "></path>
+            </symbol>
+        </defs>
+
+        <use href="#alert" x="200" y="200" width="150" height="150"></use>
+
+        <use href="#play" x="300" y="200" width="100" height="100"></use>
+
+        <use href="#download" x="400" y="200" width="100" height="100"></use>
+
+    </svg>
+
+</div>
+
+</body>
+</html>

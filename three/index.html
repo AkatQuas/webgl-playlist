@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <style>
+        .link {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+
+    window.onload = function () {
+        var links = [
+            {
+                name: 'Cube',
+                link: 'cube.html'
+            },
+            {
+                name: 'Sphere',
+                link: 'sphere.html'
+            }
+
+        ];
+        var nodelist = document.createElement('div');
+        links.forEach(item => {
+
+            var a = document.createElement('a');
+            a.href = item.link;
+            a.innerText = item.name;
+            a.className = 'link';
+            nodelist.appendChild(a);
+        });
+
+        document.querySelector('#root').appendChild(nodelist);
+    }
+</script>
+</body>
+</html>

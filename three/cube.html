@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			.wrapper {
+                position: relative;
+                width:  600px;
+                height: 600px;
+                margin: 100px auto;
+            }
+            .wrapper #info {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                width: 100%;
+                text-align: center;
+                z-index: 10;
+                color: #fff;
+                animation: marque-line 8s linear 0s infinite forwards;
+            }
+            @keyframes marque-line {
+                from {
+                    left: 80%;
+                }
+                to {
+                    left: -80%;
+                }
+            }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<div id="cube" class="wrapper">
+            <div id="info">Description in div</div>
+        </div>
+		<script src="js/three.js"></script>
+		<script src="js/cube.js"></script>
+	</body>
+</html>

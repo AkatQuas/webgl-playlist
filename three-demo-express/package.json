@@ -1,0 +1,22 @@
+{
+    "name": "",
+    "version": "1.0.0",
+    "main": "index.js",
+    "repository": "",
+    "author": "AkatQuas <295140755@qq.com>",
+    "license": "MIT",
+    "scripts": {
+        "dev": " nodemon app.js",
+        "start": " pm2 start app.js",
+        "logs":" pm2 logs",
+        "stop": " pm2 stop app && pm2 delete app"
+    },
+    "dependencies": {
+        "body-parser": "^1.18.3",
+        "express": "^4.16.4",
+        "pm2": "^3.2.2"
+    },
+    "devDependencies": {
+        "nodemon": "^1.18.6"
+    }
+}

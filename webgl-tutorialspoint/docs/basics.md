@@ -32,7 +32,7 @@ In WebGL, numerical values are used to identify the vertices. These numerical va
 
 ### Arrays
 
-Unlike OpenGl and JoGL, there are no predefined methods in WebGL to render the vertices directly. We have to store them manually using JavaScript arrays.
+Unlike OpenGL and JoGL, there are no predefined methods in WebGL to render the vertices directly. We have to store them manually using JavaScript arrays.
 
 ### Buffers
 

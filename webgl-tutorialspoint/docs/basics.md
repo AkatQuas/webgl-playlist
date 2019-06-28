@@ -4,7 +4,7 @@ WebGL is mostly a low-level rasterization API rather than a 3D API. To draw an i
 
 ## Coordinate System
 
-Just like any other 3D system, you will have *x*, *y* and *z* axes in WebGL, where the *z* axis signifies *depth*. The coordinates in WebGL are restricted to (1, 1, 1) and (-1, -1, - 1). WebGL won’t display anything that is drawn beyond these boundaries.
+Just like any other 3D system, you will have *x*, *y* and *z* axes in WebGL, where the *z* axis signifies *depth*. The coordinates in WebGL are restricted to `(1, 1, 1)` and `(-1, -1, - 1)`. WebGL won’t display anything that is drawn beyond these boundaries.
 
 ![](../images/coordinate_system.jpg)
 
@@ -42,6 +42,8 @@ Buffers are the memory areas of WebGL that hold the data. There are various buff
 
 **Frame buffer** is a portion of graphics memory that hold the scene data. This buffer contains details such as width and height of the surface (in pixels), color of each pixel, depth and stencil buffers.
 
+[How does webgl know which buffer to use?](https://stackoverflow.com/questions/27148273/what-is-the-logic-of-binding-buffers-in-webgl#27164577)
+
 ## Mesh
 
 To draw 2D or 3D objects, the WebGL API provides two methods namely, **drawArrays()** and **drawElements()**. These two methods accept a parameter called mode using which you can select the object you want to draw. The options provided by this field are restricted to points, lines, and triangles.
@@ -56,6 +58,8 @@ In the above example, you can observe that we have drawn a square using two tria
 
 ## Shader Programmes
 
+[Better detailed document](https://webglfundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html)
+
 We normally use triangles to construct meshes. Since WebGL uses GPU accelerated computing, the information about these triangles should be transferred from CPU to GPU which takes a lot of communication overhead.
 
 WebGL provides a solution to reduce the communication overhead. Since it uses ES SL (Embedded System Shader Language) that runs on GPU, we write all the required programs to draw graphical elements on the client system using **shader programs**.
@@ -65,6 +69,8 @@ These shaders are the programs for GPU and the language used to write shader pro
 In short, it is a snippet that implements algorithms to get pixels for a mesh.
 
 ### Vertex Shader
+
+[detailed explanation](https://webglfundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html#vertex-shader)
 
 Vertex shader is the program code called on every vertex. It is used to transform (move) the geometry from one place to another. It handles the data of each vertex such as vertex coordinates, normals, colors, and texture coordinates.
 
@@ -106,11 +112,13 @@ The following tasks can be performed using Fragment shaders:
 
 The full form of **OpenGL ES SL** is OpenGL Embedded System Shading Language. To handle the data in the shader programs, ES SL provides three types of variables. They are as follows:
 
-- **Attributes**: These variables hold the input values of the vertex shader program. Attributes point to the vertex buffer objects that contains per-vertex data. Each time the vertex shader is invoked, the attributes point to VBO of different vertices.
+- **Attributes**: These variables hold the input values of the vertex shader program. Attributes point to the vertex buffer objects that contains per-vertex data. Each time the vertex shader is invoked, the attributes point to VBO of different vertices. [reference](https://webglfundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html#attributes).
 
-- **Uniforms**: These variables hold the input data that is common for both vertex and fragment shaders, such as light position, texture coordinates, and color.
+- **Uniforms**: These variables hold the input data that is common and stays the same for both vertex and fragment shaders, such as light position, texture coordinates, and color. [reference](https://webglfundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html#uniforms)
 
-- **Varyings**: These variables are used to pass the data from the vertex shader to the fragment shader.
+- **Varyings**: These variables are used to pass the data from the vertex shader to the fragment shader. [reference](https://webglfundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html#varyings)
+
+- **Textures**: These variables are data coming from pixels/texels, usually for fragment shader. [reference](https://webglfundamentals.org/webgl/lessons/webgl-shaders-and-glsl.html#textures-in-fragment-shaders)
 
 # Graphics Pipeline
 
@@ -183,3 +191,14 @@ Once all the fragments are processed, a 2D image is formed and displayed on the 
 ## Frame Buffer
 
 Frame Buffer is a portion of graphics memory that hold the scene data. This buffer contains details such as width and height of the surface (in pixel), color of each pixel, and depth and stencil buffers.
+
+## normalizeFlag in vertexAttribPointer
+
+In the appendix in this [document](https://webglfundamentals.org/webgl/lessons/webgl-how-it-works.html).
+
+The normalize flag is for all the non floating point types. If you pass in false then values will be interpreted as the type they are. BYTE goes from -128 to 127, UNSIGNED_BYTE goes from 0 to 255, SHORT goes from -32768 to 32767 etc...
+
+If you set the normalize flag to true then the values of a BYTE (-128 to 127) represent the values -1.0 to +1.0, UNSIGNED_BYTE (0 to 255) become 0.0 to +1.0. A normalized SHORT also goes from -1.0 to +1.0 it just has more resolution than a BYTE.
+
+The most common use for normalized data is for colors. Most of the time colors only go from 0.0 to 1.0. Using a full float each for red, green, blue and alpha would use 16 bytes per vertex per color. If you have complicated geometry that can add up to a lot of bytes. Instead you could convert your colors to UNSIGNED_BYTEs where 0 represents 0.0 and 255 represents 1.0. Now you'd only need 4 bytes per color per vertex, a 75% savings.
+

@@ -68,16 +68,17 @@
         const Pmatrix = gl.getUniformLocation(shaderProgram, 'Pmatrix');
         const Vmatrix = gl.getUniformLocation(shaderProgram, 'Vmatrix');
         const Mmatrix = gl.getUniformLocation(shaderProgram, 'Mmatrix');
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
 
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
         const position = gl.getAttribLocation(shaderProgram, 'position');
         gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 0, 0); //position
         gl.enableVertexAttribArray(position);
-        gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
 
+        gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
         const color = gl.getAttribLocation(shaderProgram, 'color');
         gl.vertexAttribPointer(color, 3, gl.FLOAT, false, 0, 0); //color
         gl.enableVertexAttribArray(color);
+
         gl.useProgram(shaderProgram);
 
         /*========================= MATRIX ========================= */

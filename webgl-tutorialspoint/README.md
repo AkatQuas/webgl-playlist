@@ -22,15 +22,19 @@ Unless you want to develop on WebGL, you'd better never write the `webgl code` y
 
 # Examples
 
+- [webgl boilerplates](https://webglfundamentals.org/webgl/lessons/webgl-boilerplate.html): A bunch of codes for writing your webgl faster.
+
 - [test](examples/play-a-test.html)
 
 - [point](examples/point.html)
 
     ![](images/example-point.png)
-    
+
 - [triangle](examples/triangle.html)
 
     ![](images/example-triangle.png)
+
+- [triangle with gradient color](examples/triangle-gradient.html)
 
 - [parallel lines](examples/parallel-lines.html)
 
@@ -39,7 +43,7 @@ Unless you want to develop on WebGL, you'd better never write the `webgl code` y
 - [quad](examples/quad.html)
 
     ![](images/example-quad.png)
-    
+
 - [colors](examples/colors.html)
 
     ![](images/example-colors.png)
@@ -47,11 +51,11 @@ Unless you want to develop on WebGL, you'd better never write the `webgl code` y
 - [translation](examples/translation.html)
 
     ![](images/example-translation.png)
-    
+
 - [scaling](examples/scaling.html)
 
     ![](images/example-scaling.png)
-    
+
 - [rotation](examples/rotation.html)
 
 - [cube rotation](examples/cube-rotation.html)

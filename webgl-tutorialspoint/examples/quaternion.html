@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Quaternion</title>
+  <script src="./lib.js"></script>
+  <script src="./m4.js"></script>
+</head>
+
+<body>
+  <canvas width="600" height="600" id="canvas"></canvas>
+  <script id="vertex-shader" type="x-shader/x-vertex">
+    attribute vec3 a_position;
+
+    uniform mat4 u_matrix;
+
+    void main() {
+      gl_Position = u_matrix * vec4(a_position, 1.0);
+    }
+  </script>
+  <script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+    void main() {
+      gl_FragColor = vec4(0.7, 0.8, 0, 1);
+    }
+  </script>
+</body>
+<script>
+
+  window.onload = function () {
+    draw();
+  }
+
+  function draw() {
+    const canvas = document.querySelector('#canvas');
+    const gl = canvas.getContext('webgl');
+
+    const program = createProgramFromScripts(gl, 'vertex-shader', 'fragment-shader');
+
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.enable(gl.CULL_FACE);
+    gl.enable(gl.DEPTH_TEST);
+    gl.useProgram(program);
+
+    const coneData = mockConeData();
+
+    {
+      const name = 'a_position';
+      const location = gl.getAttribLocation(program, name);
+      gl.enableVertexAttribArray(location);
+      const buffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(coneData.data), gl.STATIC_DRAW);
+
+      const size = 3;
+      const type = gl.FLOAT;
+      const normalize = false;
+      const stride = 0;
+      const offset = 0;
+      gl.vertexAttribPointer(
+        location, size, type, normalize, stride, offset
+      );
+    }
+
+    {
+      const buffer = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(coneData.indices), gl.STATIC_DRAW);
+    }
+
+    const matrixLocation = gl.getUniformLocation(program, 'u_matrix');
+
+
+    const basicMatrix = m4.perspective(
+      degToRad(40),
+      gl.canvas.clientWidth / gl.canvas.clientHeight,
+      1,
+      2000
+    );
+
+
+    let old_time = 0;
+    let x = 0, z = 0;
+    function animate(time) {
+      const dt = (time - old_time) * 0.2;
+      x += dt;
+      z += dt * 2;
+
+      old_time = time;
+
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.clearDepth(1.0);
+      let matrix = m4.xRotate(basicMatrix, degToRad(x));
+      matrix = m4.zRotate(matrix, degToRad(z));
+      console.log(coneData.data.slice(0,3));
+      console.log(m4.transformPoint(matrix, coneData.data.slice(0,3)))
+
+      // todo
+
+      gl.uniformMatrix4fv(matrixLocation, false, matrix);
+
+      gl.drawElements(gl.TRIANGLES, coneData.indices.length, gl.UNSIGNED_SHORT, 0);
+      if (old_time < 800) {
+        window.requestAnimationFrame(animate);
+      }
+    }
+
+    animate(0);
+
+  }
+
+  function mockConeData() {
+    const data = [
+      0, 0, 0.5, // top
+
+      0.5, -0.5, -0.5, // bottom-rigt-low
+      0.5, 0.5, -0.5, // bottom-right-up
+      -0.5, 0.5, -0.5, // bottom-left-up
+      -0.5, -0.5, -0.5, // bottom-left-low
+    ];
+
+    const indices = [
+      0, 1, 2,
+      0, 2, 3,
+      0, 3, 4,
+      0, 4, 1
+    ];
+
+    return {
+      data,
+      indices,
+    };
+  }
+
+</script>
+
+</html>

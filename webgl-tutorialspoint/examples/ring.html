@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="./lib.js"></script>
+    <title>Ring</title>
+</head>
+
+<body>
+    <canvas width="300" height="300" id="mc"></canvas>
+    <input type="checkbox" name="culling" id="culling" > <label for="culling">culling</label>
+    <script id="3d-vertex-shader" type="x-shader/x-vertex">
+    attribute vec2 a_position;
+
+    void main() {
+        gl_Position = vec4(a_position, 0, 1);
+    }
+    </script>
+
+    <script id="3d-fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+
+    void main() {
+        gl_FragColor = vec4(0.7, 0.8, 0, 1);
+    }
+    </script>
+    <script>
+        function draw(culling) {
+            const canvas = document.querySelector('#mc');
+            const gl = canvas.getContext('webgl');
+
+            const ring = ringVertex([0, 0], .1, .5, culling);
+
+            const program = createProgramFromScripts(gl, '3d-vertex-shader', '3d-fragment-shader');
+
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            // Turn on culling. By default backfacing triangles
+            // will be culled.
+            // always enable!!
+            gl.enable(gl.CULL_FACE);
+
+            // Enable the depth buffer
+            gl.enable(gl.DEPTH_TEST);
+
+            gl.useProgram(program);
+
+            const positionLocation = gl.getAttribLocation(program, 'a_position');
+
+            {
+                gl.enableVertexAttribArray(positionLocation);
+                const positionBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ring.data), gl.STATIC_DRAW);
+
+                const size = 2;
+                const type = gl.FLOAT;
+                const normalize = false;
+                const stride = 0;
+                const offset = 0;
+                gl.vertexAttribPointer(
+                    positionLocation, size, type, normalize, stride, offset
+                );
+            }
+
+            {
+                const indexBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(ring.indices), gl.STATIC_DRAW);
+            }
+
+            gl.drawElements(gl.TRIANGLES, ring.indices.length, gl.UNSIGNED_SHORT, 0);
+
+            checkActiveInfo(gl, program);
+
+        }
+        window.onload = function () {
+            draw(false);
+
+            const ip = document.querySelector('#culling');
+            ip.addEventListener('change', function (e) {
+                draw(e.target.checked);
+            });
+        }
+
+
+        function ringVertex(center, inner, outer, culling) {
+            const data = [];
+
+            const step = culling ? 0.5 : 0.01;
+            const dest = 2 * Math.PI;
+            for (let theta = 0; theta < dest; theta += step) {
+                const c = Math.cos(theta);
+                const s = Math.sin(theta);
+                const ix = inner * c + center[0];
+                const iy = inner * s + center[1];
+                const ox = outer * c + center[0];
+                const oy = outer * s + center[1];
+                data.push(ix, iy, ox, oy);
+            }
+            const indices = [];
+            const last = data.length / 2 - 1;
+            for (let index = 2; index < last; index += 2) {
+                if (culling) {
+                    indices.push(index, index - 1, index - 2, index, index - 1, index + 1)
+                } else {
+                    indices.push(index - 2, index - 1, index, index, index - 1, index + 1)
+                }
+            }
+
+            if (culling) {
+                indices.push(0, last, last - 1, 0, last, 1);
+            } else {
+                indices.push(last - 1, last, 0, 0, last, 1)
+            }
+
+            return {
+                data,
+                indices,
+            };
+        }
+    </script>
+
+</body>
+
+</html>

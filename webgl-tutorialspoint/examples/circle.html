@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="./lib.js"></script>
+    <title>Circle</title>
+</head>
+
+<body>
+    <canvas width="300" height="300" id="mc"></canvas>
+    <script id="3d-vertex-shader" type="x-shader/x-vertex">
+    attribute vec2 a_position;
+
+    void main() {
+        gl_Position = vec4(a_position, 0, 1);
+    }
+    </script>
+
+    <script id="3d-fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+
+    void main() {
+        gl_FragColor = vec4(0.7, 0.8, 0, 1);
+    }
+    </script>
+    <script>
+        window.onload = function () {
+            /* Step1: prepare the canvas and get WebGL context */
+            const canvas = document.querySelector('#mc');
+            const gl = canvas.getContext('webgl');
+
+            const circle = circleVertex([0, 0], .5);
+
+            const program = createProgramFromScripts(gl, '3d-vertex-shader', '3d-fragment-shader');
+
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            // Turn on culling. By default backfacing triangles
+            // will be culled.
+            gl.enable(gl.CULL_FACE);
+
+            // Enable the depth buffer
+            gl.enable(gl.DEPTH_TEST);
+
+            gl.useProgram(program);
+
+            const positionLocation = gl.getAttribLocation(program, 'a_position');
+
+            {
+                gl.enableVertexAttribArray(positionLocation);
+                const positionBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(circle.data), gl.STATIC_DRAW);
+
+                const size = 2;
+                const type = gl.FLOAT;
+                const normalize = false;
+                const stride = 0;
+                const offset = 0;
+                gl.vertexAttribPointer(
+                    positionLocation, size, type, normalize, stride, offset
+                );
+            }
+
+            {
+                const indexBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(circle.indices), gl.STATIC_DRAW);
+            }
+
+            gl.drawElements(gl.TRIANGLES, circle.indices.length, gl.UNSIGNED_SHORT, 0);
+
+            checkActiveInfo(gl, program);
+        }
+
+
+        function circleVertex(center, radius) {
+            const data = [
+                center[0], center[1],
+            ];
+            if (radius > 1) {
+                radius = radius - (radius | 0);
+            }
+
+            const step = 0.01;
+            const dest = 2 * Math.PI;
+            let len = 1;
+            for (let theta = 0; theta < dest; theta += step) {
+                const x = radius * Math.cos(theta) + center[0];
+                const y = radius * Math.sin(theta) + center[1];
+                data.push(x, y);
+                len += 1;
+            }
+
+            const indices = [];
+            const last = len - 1;
+            for (let i = 1; i < last; i += 1) {
+                indices.push(0, i, i + 1);
+            }
+            indices.push(0, last, 1);
+
+            return {
+                data,
+                indices,
+            };
+        }
+    </script>
+
+</body>
+
+</html>

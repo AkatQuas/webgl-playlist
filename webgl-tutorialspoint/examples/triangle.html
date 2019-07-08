@@ -1,124 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Triangle</title>
 </head>
+
 <body>
-<canvas id="canvas"></canvas>
-<script>
-    window.onload = function () {
-        const canvas = document.querySelector('#canvas');
-        const gl = canvas.getContext('webgl');
+    <canvas id="canvas"></canvas>
+    <script>
+        window.onload = function () {
+            const canvas = document.querySelector('#canvas');
+            const gl = canvas.getContext('webgl');
 
-        const vertices = [
-            -0.5, 0.5, 0.0,
-            -0.5, -0.5, 0.0,
-            0.5, -0.5, 0.0
-        ];
-        const indices = [0, 1, 2];
+            const vertices = [
+                -.7, .7, 0.0,
+                -1, -1, 0.0,
+                0.5, -0.5, 0.0,
+                0.7, 0.7, 0.0
+            ];
+            const indices = [0, 1, 2, 1, 2, 3];
 
-        // create an empty buffer object to store vertex buffer
-        const vertex_buffer = gl.createBuffer();
+            // create an empty buffer object to store vertex buffer
+            const vertex_buffer = gl.createBuffer();
 
-        // bind appropriate array buffer to it
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+            // bind appropriate array buffer to it
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
 
-        // pass the vertex data to the buffer
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+            // pass the vertex data to the buffer
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
-        // unbind the buffer
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+            // unbind the buffer
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        // create an empty buffer object to store index buffer
-        const index_buffer = gl.createBuffer();
+            // create an empty buffer object to store index buffer
+            const index_buffer = gl.createBuffer();
 
-        // bind appropriate array buffer to it
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer);
+            // bind appropriate array buffer to it
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer);
 
-        // pass the indices data to the buffer
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+            // pass the indices data to the buffer
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
-        // unbind the buffer
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+            // unbind the buffer
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
-        /*================ Shaders ====================*/
+            /*================ Shaders ====================*/
 
-        // vertex shader source code
-        const vertCode = `
-        attribute vec3 coordinates;
-        void main(void) {
-            gl_Position = vec4(coordinates, 1.0);
-        }`;
+            // vertex shader source code
+            const vertCode = `
+            attribute vec3 coordinates;
+            void main(void) {
+                gl_Position = vec4(coordinates, 1.0);
+            }`;
 
-        // create a vertex shader object
-        const vertShader = gl.createShader(gl.VERTEX_SHADER);
+            // create a vertex shader object
+            const vertShader = gl.createShader(gl.VERTEX_SHADER);
 
-        // attach vertex shader source code
-        gl.shaderSource(vertShader, vertCode);
+            // attach vertex shader source code
+            gl.shaderSource(vertShader, vertCode);
 
-        // compile the vertex shader
-        gl.compileShader(vertShader);
+            // compile the vertex shader
+            gl.compileShader(vertShader);
 
-        // fragment shader source code
-        const fragCode = `
-        void main(void) {
-            gl_FragColor = vec4(0.0,0.0,0.0, 0.1);
-        }`;
+            // fragment shader source code
+            const fragCode = `
+            void main(void) {
+                gl_FragColor = vec4(0.0,0.0,0.0, 0.1);
+            }`;
 
-        // create fragment shader source code
-        const fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+            // create fragment shader source code
+            const fragShader = gl.createShader(gl.FRAGMENT_SHADER);
 
-        // attach fragment shader source code
-        gl.shaderSource(fragShader, fragCode);
+            // attach fragment shader source code
+            gl.shaderSource(fragShader, fragCode);
 
-        // compile the fragment shader
-        gl.compileShader(fragShader);
+            // compile the fragment shader
+            gl.compileShader(fragShader);
 
-        // create a shader program object to store
-        // the combined shader program
-        const shaderProgram = gl.createProgram();
+            // create a shader program object to store
+            // the combined shader program
+            const shaderProgram = gl.createProgram();
 
-        // attach vertex shader and fragment shader
-        gl.attachShader(shaderProgram, vertShader);
-        gl.attachShader(shaderProgram, fragShader);
+            // attach vertex shader and fragment shader
+            gl.attachShader(shaderProgram, vertShader);
+            gl.attachShader(shaderProgram, fragShader);
 
-        // link both the programs
-        gl.linkProgram(shaderProgram);
+            // link both the programs
+            gl.linkProgram(shaderProgram);
 
-        // use the combined shader program object
-        gl.useProgram(shaderProgram);
+            // use the combined shader program object
+            gl.useProgram(shaderProgram);
 
-        /*======= Associating shaders to buffer objects =======*/
+            /*======= Associating shaders to buffer objects =======*/
 
-        // bind vertex buffer object
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+            // bind vertex buffer object
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
 
-        // bind index buffer object
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer);
+            // bind index buffer object
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer);
 
-        // get the attribute location
-        const coord = gl.getAttribLocation(shaderProgram, 'coordinates');
+            // get the attribute location
+            const coord = gl.getAttribLocation(shaderProgram, 'coordinates');
 
-        // point an attribute to the currently bound VBO
-        gl.vertexAttribPointer(coord, 3, gl.FLOAT, false, 0, 0);
+            // point an attribute to the currently bound VBO
+            gl.vertexAttribPointer(coord, 3, gl.FLOAT, false, 0, 0);
 
-        // enable the attribute
-        gl.enableVertexAttribArray(coord);
+            // enable the attribute
+            gl.enableVertexAttribArray(coord);
 
-        /*=========Drawing the triangle===========*/
-        gl.clearColor(0.5, 0.5, 0.5, 0.9);
+            /*=========Drawing the triangle===========*/
+            gl.clearColor(0.5, 0.5, 0.5, 0.9);
 
-        gl.enable(gl.DEPTH_TEST);
+            gl.enable(gl.DEPTH_TEST);
 
-        gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.clear(gl.COLOR_BUFFER_BIT);
 
-        gl.viewport(0, 0, canvas.width, canvas.height);
+            gl.viewport(0, 0, canvas.width, canvas.height);
 
-        gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+            gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+            const lindex = gl.createBuffer();
+            const indices2 = [0, 3];
+            // bind appropriate array buffer to it
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lindex);
 
-    };
-</script>
+            // pass the indices data to the buffer
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices2), gl.STATIC_DRAW);
+
+            gl.drawElements(gl.LINE_STRIP, indices2.length, gl.UNSIGNED_SHORT, 0);
+        };
+    </script>
 
 </body>
+
 </html>

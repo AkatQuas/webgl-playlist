@@ -1,4 +1,4 @@
-# WebGL 
+# WebGL
 
 [WebGL](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial) is amazing! Learn something in the Graphics Library.
 
@@ -8,9 +8,13 @@ You'd better check the API usage while developing, how can you memorize all the 
 
 # The list
 
-- **[WebGL MDN](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Getting_started_with_WebGL)**: Official RFC.
+- **[WebGL tutorialspoint]**(webgl-tutorialspoint/README.md): A much detailed WebGL learning notes!
 
-- [WebGL tutorialspoint](webgl-tutorialspoint/README.md)
+  [WebGL Basics](https://blogoben.wordpress.com/2011/02/20/webgl-comes/): A good blog on WebGL basic concepts, though it hasn't been updated for a long time.
+
+  [OpenGL Basic](http://www.songho.ca/opengl/index.html): A fundamental information blog on OpenGL, but the concepts are similar.
+
+- **[WebGL MDN](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Getting_started_with_WebGL)**: Official RFC.
 
 - **[WebGL Fundamentals](https://webglfundamentals.org/)**: Amazing collection of articles that teach WebGL from ground up.
 

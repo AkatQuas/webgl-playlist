@@ -6,6 +6,7 @@
     <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="./lib.js"></script>
     <title>Play a Test</title>
 </head>
 
@@ -34,7 +35,7 @@
         /* Step3: Create and compile Shader program */
 
         // vertex shader source code
-        const vertCode = 'attribute vec2 coordinates;' + 'void main(void) { gl_Position = vec4(coordinates, 0.0, 1.0); }';
+        const vertCode = 'attribute vec2 a_coor;' + 'void main(void) { gl_Position = vec4(a_coor, 0.0, 1.0); }';
 
         // create a vertex shader object
         const vertShader = gl.createShader(gl.VERTEX_SHADER);
@@ -78,7 +79,7 @@
         gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
 
         // get the attribute location
-        const coord = gl.getAttribLocation(shaderProgram, "coordinates");
+        const coord = gl.getAttribLocation(shaderProgram, "a_coor");
 
         // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
         var size = 2;          // 2 components per iteration
@@ -111,6 +112,7 @@
         var count = 3;
         gl.drawArrays(primitiveType, offset, count);
 
+        checkActiveInfo(gl, shaderProgram);
 
     </script>
 

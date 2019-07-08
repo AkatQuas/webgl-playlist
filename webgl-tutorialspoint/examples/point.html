@@ -35,9 +35,9 @@
         /*=========================Shaders========================*/
 
         // vertex shader source code
-        const vertCode = `attribute vec3 coordinates;
+        const vertCode = `attribute vec3 a_coor;
             void main(void) {
-             gl_Position = vec4(coordinates, 1.0);
+             gl_Position = vec4(a_coor, 1.0);
             gl_PointSize = 10.0;
             }`;
 
@@ -85,7 +85,7 @@
         gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
 
         // Get the attribute location
-        const coord = gl.getAttribLocation(shaderProgram, 'coordinates');
+        const coord = gl.getAttribLocation(shaderProgram, 'a_coor');
 
         // Point an attribute to the currently bound VBO
         gl.vertexAttribPointer(coord, 3, gl.FLOAT, false, 0, 0);

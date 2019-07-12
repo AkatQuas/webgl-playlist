@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Lookat Rotating</title>
+  <script src="./lib.js"></script>
+  <script src="./m4.js"></script>
+  <script src="./headdata.js"></script>
+</head>
+
+<body>
+  <canvas id="canvas" width="800" height="800"></canvas>
+  <script id="vertex-shader" type="x-shader/x-vertex">
+  attribute vec4 a_position;
+  attribute vec4 a_color;
+
+  uniform mat4 u_matrix;
+
+  varying vec4 v_color;
+
+  void main() {
+    gl_Position = u_matrix * a_position;
+    v_color = a_color;
+  }
+  </script>
+  <script id="fragment-shader" type="x-shader/x-fragment">
+  precision mediump float;
+
+  varying vec4 v_color;
+
+  void main() {
+    gl_FragColor = v_color;
+  }
+  </script>
+
+  <script>
+    window.onload = function () {
+      main();
+    }
+    function main() {
+      const canvas = document.querySelector('#canvas');
+      const gl = canvas.getContext('webgl');
+
+      const program = createProgramFromScripts(gl, 'vertex-shader', 'fragment-shader');
+      gl.useProgram(program);
+
+      gl.enable(gl.CULL_FACE);
+      gl.enable(gl.DEPTH_TEST);
+
+      const positionLocation = gl.getAttribLocation(program, 'a_position');
+      const colorLocation = gl.getAttribLocation(program, 'a_color');
+
+      const matrixLocation = gl.getUniformLocation(program, 'u_matrix');
+
+      const positionBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      const numElements = setGeometry(gl);
+      gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(positionLocation);
+
+      const colorBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+      setColors(gl);
+      gl.vertexAttribPointer(colorLocation, 3, gl.UNSIGNED_BYTE, true, 0, 0);
+      gl.enableVertexAttribArray(colorLocation);
+
+      drawScene(0);
+
+      function drawScene(now) {
+        now *= 0.05;
+        const targetAngleRadians = degToRad(now);
+        const targetYRadians = degToRad(now * 1.05);
+        const targetRadius = 300;
+        const target = [
+          Math.sin(targetAngleRadians) * targetRadius,
+          Math.sin(targetYRadians) * 200,
+          Math.cos(targetAngleRadians) * targetRadius
+        ];
+        const fieldOfViewRadians = degToRad(80);
+
+        const numFs = 5;
+        const radius = 600;
+        gl.viewport(0, 0, gl.canvas.clientWidth, gl.canvas.clientHeight);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+        const projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, 1, 3000);
+
+        const cameraTarget = [0, -100, 0];
+        const cameraPosition = [500, 300, 500];
+        const up = [0, 1, 0];
+
+        const cameraMatrix = m4.lookAt(cameraPosition, cameraTarget, up);
+
+        const viewMatrix = m4.inverse(cameraMatrix);
+        const viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+
+        const deep = 5;
+        const across = 5;
+
+        for (let zz = 0; zz < deep; zz += 1) {
+          const v = zz / (deep - 1);
+          const z = (v - .5) * deep * 100;
+          for (let xx = 0; xx < across; xx += 1) {
+            const u = xx / (across - 1);
+            const x = (u - .5) * across * 100;
+            const matrix = m4.lookAt([x, 0, z], target, up);
+            m4.multiply(viewProjectionMatrix, matrix, matrix);
+            drawHead(matrix, matrixLocation, numElements);
+          }
+        }
+        const m = m4.multiply(viewProjectionMatrix,m4.translation(target[0], target[1], target[2]));
+        drawHead(m, matrixLocation, numElements);
+
+        requestAnimationFrame(drawScene);
+      }
+
+      function drawHead(matrix, matrixLocation, numElements) {
+        gl.uniformMatrix4fv(matrixLocation, false, matrix);
+        gl.drawArrays(gl.TRIANGLES, 0, numElements);
+      }
+    }
+
+    function setGeometry(gl) {
+      const positions = new Float32Array(HeadData.positions);
+      const scale = 2;
+      const matrix = m4.multiply(m4.scaling(scale, scale, scale), m4.yRotation(Math.PI));
+      for (let ii = 0; ii < positions.length; ii += 3) {
+        const vector = m4.transformVector(matrix, [positions[ii + 0], positions[ii + 1], positions[ii + 2], 1]);
+        positions[ii + 0] = vector[0];
+        positions[ii + 1] = vector[1];
+        positions[ii + 2] = vector[2];
+      }
+      gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+      return positions.length / 3;
+    }
+
+    function setColors(gl) {
+      const normals = HeadData.normals;
+      const colors = new Uint8Array(normals.length);
+      let offset = 0;
+      for (let ii = 0; ii < colors.length; ii += 3) {
+        for (let jj = 0; jj < 3; jj += 1) {
+          colors[offset] = (normals[offset] * 0.5 + 0.5) * 255;
+          offset += 1;
+        }
+      }
+      gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+    }
+
+  </script>
+
+</body>
+
+</html>

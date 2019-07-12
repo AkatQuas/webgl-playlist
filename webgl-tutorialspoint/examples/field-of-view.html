@@ -350,29 +350,31 @@
                     colorLocation, size, type, normalize, stride, offset);
             }
 
-            const translation = [-150, 0, -80];
-            const rotation = [degToRad(120), degToRad(90), degToRad(220)];
-            const scale = [1, 1, 1];
-            const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-            const zNear = 1;
-            const zFar = 20000;
-            const i = randomInt(50);
-            const fieldOfViewRadians = degToRad(i+80);
+            function drawScene(now) {
+                now *= 0.1;
+                const fieldOfViewRadians = degToRad(now);
+                const translation = [-150, 0, -80];
+                const rotation = [degToRad(120), degToRad(90), degToRad(220)];
+                const scale = [1, 1, 1];
+                const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+                const zNear = 1;
+                const zFar = 20000;
 
-            let matrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
-            matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
-            matrix = m4.xRotate(matrix, rotation[0]);
-            matrix = m4.yRotate(matrix, rotation[1]);
-            matrix = m4.zRotate(matrix, rotation[2]);
-            matrix = m4.scale(matrix, scale[0], scale[1], scale[2]);
+                let matrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+                matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
+                matrix = m4.xRotate(matrix, rotation[0]);
+                matrix = m4.yRotate(matrix, rotation[1]);
+                matrix = m4.zRotate(matrix, rotation[2]);
+                matrix = m4.scale(matrix, scale[0], scale[1], scale[2]);
 
-            gl.uniformMatrix4fv(matrixLocation, false, matrix);
+                gl.uniformMatrix4fv(matrixLocation, false, matrix);
 
-            gl.drawArrays(gl.TRIANGLES, 0, 16 * 6);
+                gl.drawArrays(gl.TRIANGLES, 0, 16 * 6);
+                requestAnimationFrame(drawScene);
+            }
 
-            setTimeout(() => {
-                window.location.reload();
-            }, 300)
+            drawScene(0);
+
         }
     </script>
 

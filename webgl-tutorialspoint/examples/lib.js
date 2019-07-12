@@ -1,3 +1,6 @@
+function isPowerOf2(value) {
+  return (value & (value - 1)) === 0;
+}
 function radToDeg(r) {
   return r * 180 / Math.PI;
 }
@@ -13,6 +16,12 @@ function randomInt(upper) {
 function randomDecimal() {
   return Math.random();
 }
+
+function bindFrambufferAndSetViewport(gl, fb, width, height) {
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  gl.viewport(0, 0, width, height);
+}
+
 
 function checkActiveInfo(gl, program) {
   console.group('ActiveInfo in program');

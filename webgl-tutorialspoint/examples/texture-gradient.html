@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Textures more</title>
+  <script src="./lib.js"></script>
+</head>
+
+<body>
+  <canvas id="canvas" width="300" height="200"></canvas>
+  <p>current mode : <span id="mode">0</span></p>
+  <button id="mode0">color mode 0</button>
+  <button id="mode1">color mode 1</button>
+  <script type="x-shader/x-vertex" id="vertex-shader">
+    attribute vec3 a_position;
+    attribute float a_brightness;
+
+    varying float v_brightness;
+
+    void main() {
+      gl_Position = vec4(a_position, 1.0);
+
+      v_brightness = a_brightness;
+    }
+  </script>
+  <script type="x-shader/x-fragment" id="fragment-shader">
+    precision mediump float;
+
+    uniform int u_mode;
+
+    varying float v_brightness;
+
+    void main() {
+      if (u_mode == 0) {
+        gl_FragColor = vec4(v_brightness, 0, 0, 1);
+      } else if (u_mode == 1) {
+        gl_FragColor = vec4(1, 0, 0, 1);
+      }
+    }
+  </script>
+  <script>
+    window.onload = function () {
+      main(0);
+      ;[0, 1].forEach(i => {
+        const button = document.querySelector('#mode'.concat(i));
+        button.addEventListener('click', () => {
+          main(i);
+          document.querySelector('#mode').innerHTML = i;
+        });
+      });
+    }
+    function main(mode) {
+      const canvas = document.getElementById('canvas');
+      const gl = canvas.getContext('webgl');
+
+      const program = createProgramFromScripts(gl, 'vertex-shader', 'fragment-shader');
+      gl.useProgram(program);
+
+      const positionLocation = gl.getAttribLocation(program, 'a_position');
+      const brightnessLocation = gl.getAttribLocation(program, 'a_brightness');
+
+      const data = new Float32Array([
+        -.8, .2, 0, 0,  // 1nd rect 1st triangle
+        .8, .2, 0, 1,
+        -.8, .8, 0, 0,
+        -.8, .8, 0, 0, // 1nd rect 2nd triangle
+        .8, .2, 0, 1,
+        .8, .8, 0, 1,
+
+        -.8, -.8, 0, 0,   // 2st rect 1st triangle
+        .8, -.8, 0, 1,
+        -.8, -.2, 0, 0,
+        -.8, -.2, 0, 0, // 2st rect 2nd triangle
+        .8, -.8, 0, 1,
+        .8, -.2, 0, 1
+      ]);
+      const FSIZE = data.BYTES_PER_ELEMENT;
+      const buffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+      gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, FSIZE * 4, 0);
+      gl.enableVertexAttribArray(positionLocation);
+
+      gl.vertexAttribPointer(brightnessLocation, 1, gl.FLOAT, false, FSIZE * 4, FSIZE * 3);
+      gl.enableVertexAttribArray(brightnessLocation);
+
+
+      const u_modeLocation = gl.getUniformLocation(program, 'u_mode');
+
+      gl.uniform1i(u_modeLocation, mode); // color mix mode
+
+      gl.viewport(0, 0, gl.canvas.clientWidth, gl.canvas.clientHeight);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      gl.drawArrays(gl.TRIANGLES, 0, 4 * 3);
+    }
+  </script>
+</body>
+
+</html>

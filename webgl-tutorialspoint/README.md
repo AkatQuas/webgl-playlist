@@ -30,17 +30,25 @@ Unless you want to develop on WebGL, you'd better never write the `webgl code` y
 
 - [test](examples/play-a-test.html)
 
-- [point](examples/point.html)
+- [point](examples/point.html): simple point example
 
     ![](images/example-point.png)
 
-- [triangle](examples/triangle.html)
+- [point with color and size](examples/point-size.html): colorful point with different size
+
+    ![](images/example-point-size.png);
+
+- [triangle](examples/triangle.html): using the `gl_FragCoord` to determine the color!
 
     ![](images/example-triangle.png)
 
 - [triangle with gradient color](examples/triangle-gradient.html)
 
-- [circle](examples/circle.html)
+- [circle](examples/circle.html): using `gl.TRIANGLES` and `indexBuffer` to specify the vertex.
+
+    ![](images/example-circle.png)
+
+- [circle fan](examples/circle-fan.html): using `gl.TRIANGLE_FAN`, without `indexBuffer`.
 
     ![](images/example-circle.png)
 
@@ -119,7 +127,7 @@ function checkActiveInfo(gl, program) {
 
 **[Matrix math for web](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Matrix_math_for_the_web)**: Matrix can be not only used in `webgl`, but also in `style.transform`.
 
-The order of matrix multiplication matters, and the elements in arrays in not the same row-column order in math. [Here is an article](https://webglfundamentals.org/webgl/lessons/webgl-matrix-vs-math.html).
+The order of matrix multiplication matters, and the elements in arrays is not the same row-column order in math. [Here is an article](https://webglfundamentals.org/webgl/lessons/webgl-matrix-vs-math.html).
 
 So, the way WebGL, and OpenGL ES on which WebGL is based, gets around this is it calls rows "columns".
 
@@ -153,7 +161,32 @@ const positon = [
 | 0.3 | -> z-axis
 
 */
+```
 
+And in the [m4.js](examples/m4.js), all the matrix are save in column-majored,
+
+The multiplication is calculated is the real math order if you look at the [elements used](examples/m4.js#L111).
+
+In the real math, the matrix is like
+
+```
+                                # row
+        | a    b     c     d   | # r1
+        | e    f     g     h   | # r2
+        | i    j     k     l   | # r3
+        | m    n     o     p   | # r4
+#column  #c1   #c2   #c3   #c4
+```
+
+however, in `WebGL` or `openGL`, the data is saved in one array like this
+
+```js
+data = Float32Array([
+    a, e, i, m, // column 1
+    b, f, j, n, // column 2
+    c, g, k, o, // column 3
+    d, h, l, p, // column 4
+]);
 ```
 
 ## Camera
@@ -292,6 +325,47 @@ There are 6 modes for setting the texture filtering:
 - `NEAREST_MIPMAP_LINEAR` = choose the best 2 mips, choose 1 pixel from each, blend them
 - `LINEAR_MIPMAP_LINEAR` = choose the best 2 mips. choose 4 pixels from each, blend them
 
+The simple way to think of texture units is something like this: All of the texture functions work on the "active texture unit". The "active texture unit" is just a global variable that's the index of the texture unit you want to work with. Each texture unit has 2 targets. The TEXTURE_2D target and the TEXTURE_CUBE_MAP target. Every texture function works with the specified target on the current active texture unit. If you were to implement WebGL in JavaScript it would look something like this:
+
+```js
+var getContext = function() {
+  var textureUnits = [
+    { TEXTURE_2D: ??, TEXTURE_CUBE_MAP: ?? },
+    { TEXTURE_2D: ??, TEXTURE_CUBE_MAP: ?? },
+    { TEXTURE_2D: ??, TEXTURE_CUBE_MAP: ?? },
+    { TEXTURE_2D: ??, TEXTURE_CUBE_MAP: ?? },
+    { TEXTURE_2D: ??, TEXTURE_CUBE_MAP: ?? },
+    ...
+  ];
+  var activeTextureUnit = 0;
+
+  var activeTexture = function(unit) {
+    // convert the unit enum to an index.
+    var index = unit - gl.TEXTURE0;
+    // Set the active texture unit
+    activeTextureUnit = index;
+  };
+
+  var bindTexture = function(target, texture) {
+    // Set the texture for the target of the active texture unit.
+    textureUnits[activeTextureUnit][target] = texture;
+  };
+
+  var texImage2D = function(target, ... args ...) {
+    // Call texImage2D on the current texture on the active texture unit
+    var texture = textureUnits[activeTextureUnit][target];
+    texture.image2D(...args...);
+  };
+
+  // return the WebGL API
+  return {
+    activeTexture: activeTexture,
+    bindTexture: bindTexture,
+    texImage2D: texImage2D,
+  }
+};
+```
+
 ### Examples
 
 - [cube with image texture](examples/texture-cube.html): Derived from this [MDN detailed document](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Using_textures_in_WebGL)
@@ -302,7 +376,11 @@ There are 6 modes for setting the texture filtering:
 
     ![](images/example-texture-square.png)
 
-- [basic image texture example](examples/texture-image-base.html)
+- basic image texture example: [one](examples/texture-image-base.html); [two](examples/texture-image-base2.html)
+
+    ![](images/example-texture-image-base.png)
+
+    ![](images/example-texture-image-base2.gif)
 
 - [mipmap in texture](examples/mipmap-one.html): some detailed illustration is [here](#texture).
 
@@ -325,6 +403,26 @@ There are 6 modes for setting the texture filtering:
 - [texture benefits from framebuffer](examples/texture-rendering-one.html): using framebuffer to render a texture, and then render that texture to the canvas.
 
     ![](images/example-texture-rendering-one.gif)
+
+- [textures with two images, and with two color mixture mode](examples/texture-more-pictures.html): Using two pictures to draw, with different color mixture mode.
+
+    ![](images/example-texture-more-pictures.gif)
+
+- [switch between textures](examples/texture-exchange-pictures.html)
+
+    ![](images/example-texture-exchange-pictures.gif)
+
+- [color with gradient](examples/texture-gradient.html): The webgl draw the color on the pixels and using interpolation to draw the rest color.
+
+    ![](images/example-texture-gradient.gif)
+
+- [cube texture mapping](examples/texture-cubemaps.html): We create 6 texture from canvas, and apply them to the `TEXTURE_CUBE_MAP`.
+
+    ![](images/example-texture-cubemaps.gif)
+
+    Here is a [document](https://webglfundamentals.org/webgl/lessons/webgl-environment-maps.html) for reflecting the room. [The file](examples/texture-environment-maps.html).
+
+    ![](images/example-texture-environment-maps.gif)
 
 ## Framebuffer
 

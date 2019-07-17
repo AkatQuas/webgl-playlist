@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Texture Environment Maps</title>
+  <script src="./lib.js"></script>
+  <script src="./m4.js"></script>
+  <style>
+    #faces img {
+      display: inline-block;
+      width: 150px;
+      margin: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="faces" style="width: 500px"></div>
+  <hr>
+  <div id="cubes">
+    <canvas id="canvas" width="500px" height="500px"></canvas>
+    <canvas id="canvas-reflect" width="500px" height="500px"></canvas>
+  </div>
+  <script type="x-shader/x-vertex" id="vertex-shader">
+    attribute vec4 a_position;
+
+    uniform mat4 u_matrix;
+
+    varying vec3 v_normal;
+
+    void main() {
+      gl_Position = u_matrix * a_position;
+
+      v_normal = normalize(a_position.xyz);
+    }
+  </script>
+  <script type="x-shader/x-fragment" id="fragment-shader">
+    precision mediump float;
+
+    varying vec3 v_normal;
+
+    uniform samplerCube u_texture;
+
+    void main() {
+      gl_FragColor = textureCube(u_texture, normalize(v_normal));
+    }
+  </script>
+  <script type="x-shader/x-vertex" id="reflect-vertex-shader">
+    attribute vec4 a_position;
+    attribute vec3 a_normal;
+
+    uniform mat4 u_projection;
+    uniform mat4 u_view;
+    uniform mat4 u_world;
+
+    varying vec3 v_worldNormal;
+    varying vec3 v_worldPosition;
+
+    void main() {
+      gl_Position = u_projection * u_view * u_world * a_position;
+
+      v_worldPosition = (u_world * a_position).xyz;
+
+      v_worldNormal = mat3(u_world) * a_normal;
+    }
+  </script>
+  <script type="x-shader/x-fragment" id="reflect-fragment-shader">
+    precision highp float;
+
+    varying vec3 v_worldNormal;
+    varying vec3 v_worldPosition;
+
+    uniform samplerCube u_texture;
+
+    uniform vec3 u_worldCameraPosition;
+
+    void main() {
+      vec3 worldNormal = normalize(v_worldNormal);
+      vec3 eyeToSurfaceDir = normalize(v_worldPosition - u_worldCameraPosition);
+      vec3 direction = reflect(eyeToSurfaceDir, worldNormal);
+
+      gl_FragColor = textureCube(u_texture, direction);
+    }
+  </script>
+
+  <script>
+    window.onload = function () {
+      drawFaces();
+
+      drawCube();
+
+      drawReflectCube();
+    }
+
+    function drawFaces() {
+      const faceInfos = [
+        'environment-map-pos-x.jpg',
+        'environment-map-neg-x.jpg',
+        'environment-map-pos-y.jpg',
+        'environment-map-neg-y.jpg',
+        'environment-map-pos-z.jpg',
+        'environment-map-neg-z.jpg',
+      ];
+      const div = document.querySelector('#faces');
+      faceInfos.forEach(face => {
+        const image = new Image();
+        image.src = face;
+        div.appendChild(image);
+      });
+    }
+
+    function drawCube() {
+      const canvas = document.querySelector('#canvas');
+      const gl = canvas.getContext('webgl');
+
+      const program = createProgramFromScripts(gl, 'vertex-shader', 'fragment-shader');
+      gl.useProgram(program);
+
+      gl.enable(gl.CULL_FACE);
+      gl.enable(gl.DEPTH_TEST);
+
+      const positionLocation = gl.getAttribLocation(program, 'a_position');
+      const matrixLocation = gl.getUniformLocation(program, 'u_matrix');
+      const textureLocation = gl.getUniformLocation(program, 'u_texture');
+
+      {
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        setGeometry(gl);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(buffer);
+      }
+
+      setTextures(gl);
+
+
+      const fieldOfViewRadians = degToRad(60);
+
+      drawScene(0);
+
+      function drawScene(now) {
+        const modelXRotationRadians = degToRad(now * 0.02);
+        const modelYRotationRadians = degToRad(now * 0.022);
+
+        gl.viewport(0, 0, gl.canvas.clientWidth, gl.canvas.clientHeight);
+
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+        const projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, 1, 2000);
+
+        const cameraPosition = [0, 0, 2];
+        const up = [0, 1, 0];
+        const target = [0, 0, 0];
+
+        const cameraMatrix = m4.lookAt(cameraPosition, target, up);
+        const viewMatrix = m4.inverse(cameraMatrix);
+        const viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+
+        const matrix = m4.xRotate(viewProjectionMatrix, modelXRotationRadians);
+        m4.yRotate(matrix, modelYRotationRadians, matrix);
+
+        gl.uniformMatrix4fv(matrixLocation, false, matrix);
+
+        gl.uniform1i(textureLocation, 0);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 36);
+
+        requestAnimationFrame(drawScene);
+      }
+    }
+
+    function drawReflectCube() {
+      const canvas = document.querySelector('#canvas-reflect');
+      const gl = canvas.getContext('webgl');
+
+      debugger;
+      const program = createProgramFromScripts(gl, 'reflect-vertex-shader', 'reflect-fragment-shader');
+      gl.useProgram(program);
+
+      gl.enable(gl.CULL_FACE);
+      gl.enable(gl.DEPTH_TEST);
+
+      const positionLocation = gl.getAttribLocation(program, 'a_position');
+      const normalLocation = gl.getAttribLocation(program, 'a_normal');
+
+      const projectionMatrixLocation = gl.getUniformLocation(program, 'u_projection');
+      const viewMatrixLocation = gl.getUniformLocation(program, 'u_view');
+      const worldMatrixLocation = gl.getUniformLocation(program, 'u_world');
+      const textureLocation = gl.getUniformLocation(program, 'u_texture');
+      const worldCameraPositionLocation = gl.getUniformLocation(program, 'u_worldCameraPosition');
+
+      {
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        setGeometry(gl);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(positionLocation);
+      }
+      {
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        setNormals(gl);
+        gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(normalLocation);
+      }
+
+      setTextures(gl);
+
+      const fieldOfViewRadians = degToRad(60);
+      let spinCamera = true;
+
+      drawScene(0);
+
+      function drawScene(now) {
+        const modelXRotationRadians = degToRad(now * 0.02);
+        const modelYRotationRadians = degToRad(now * 0.022);
+        const cameraYRotationRadians = degToRad(now * 0.018);
+
+        gl.viewport(0, 0, gl.canvas.clientWidth, gl.canvas.clientHeight);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+        const projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, 1, 2000);
+        gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix);
+
+        const cameraPosition = [0, 0, 2];
+        const target = [0, 0, 0];
+        const up = [0, 1, 0];
+
+        const cameraMatrix = m4.lookAt(cameraPosition, target, up);
+
+        const viewMatrix = m4.inverse(cameraMatrix);
+
+        const worldMatrix = m4.xRotation(modelXRotationRadians);
+        m4.yRotate(worldMatrix, modelYRotationRadians, worldMatrix);
+
+        gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix);
+        gl.uniformMatrix4fv(viewMatrixLocation, false, viewMatrix);
+        gl.uniformMatrix4fv(worldMatrixLocation, false, worldMatrix);
+
+        gl.uniform3fv(worldCameraPositionLocation, cameraPosition);
+
+        gl.uniform1i(textureLocation, 0);
+        gl.drawArrays(gl.TRIANGLES, 0, 36);
+        requestAnimationFrame(drawScene);
+      }
+    }
+
+    function setGeometry(gl) {
+      const positions = new Float32Array(
+        [
+          -0.5, -0.5, -0.5,
+          -0.5, 0.5, -0.5,
+          0.5, -0.5, -0.5,
+          -0.5, 0.5, -0.5,
+          0.5, 0.5, -0.5,
+          0.5, -0.5, -0.5,
+
+          -0.5, -0.5, 0.5,
+          0.5, -0.5, 0.5,
+          -0.5, 0.5, 0.5,
+          -0.5, 0.5, 0.5,
+          0.5, -0.5, 0.5,
+          0.5, 0.5, 0.5,
+
+          -0.5, 0.5, -0.5,
+          -0.5, 0.5, 0.5,
+          0.5, 0.5, -0.5,
+          -0.5, 0.5, 0.5,
+          0.5, 0.5, 0.5,
+          0.5, 0.5, -0.5,
+
+          -0.5, -0.5, -0.5,
+          0.5, -0.5, -0.5,
+          -0.5, -0.5, 0.5,
+          -0.5, -0.5, 0.5,
+          0.5, -0.5, -0.5,
+          0.5, -0.5, 0.5,
+
+          -0.5, -0.5, -0.5,
+          -0.5, -0.5, 0.5,
+          -0.5, 0.5, -0.5,
+          -0.5, -0.5, 0.5,
+          -0.5, 0.5, 0.5,
+          -0.5, 0.5, -0.5,
+
+          0.5, -0.5, -0.5,
+          0.5, 0.5, -0.5,
+          0.5, -0.5, 0.5,
+          0.5, -0.5, 0.5,
+          0.5, 0.5, -0.5,
+          0.5, 0.5, 0.5,
+
+        ]);
+      gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+    }
+
+    // Fill the buffer with normals for cube
+    function setNormals(gl) {
+      const normals = new Float32Array(
+        [
+          0, 0, -1,
+          0, 0, -1,
+          0, 0, -1,
+          0, 0, -1,
+          0, 0, -1,
+          0, 0, -1,
+
+          0, 0, 1,
+          0, 0, 1,
+          0, 0, 1,
+          0, 0, 1,
+          0, 0, 1,
+          0, 0, 1,
+
+          0, 1, 0,
+          0, 1, 0,
+          0, 1, 0,
+          0, 1, 0,
+          0, 1, 0,
+          0, 1, 0,
+
+          0, -1, 0,
+          0, -1, 0,
+          0, -1, 0,
+          0, -1, 0,
+          0, -1, 0,
+          0, -1, 0,
+
+          -1, 0, 0,
+          -1, 0, 0,
+          -1, 0, 0,
+          -1, 0, 0,
+          -1, 0, 0,
+          -1, 0, 0,
+
+          1, 0, 0,
+          1, 0, 0,
+          1, 0, 0,
+          1, 0, 0,
+          1, 0, 0,
+          1, 0, 0,
+        ]);
+      gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+    }
+
+    function setTextures(gl) {
+      const texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+
+      const faceInfos = [
+        {
+          target: gl.TEXTURE_CUBE_MAP_POSITIVE_X,
+          url: 'environment-map-pos-x.jpg',
+        },
+        {
+          target: gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+          url: 'environment-map-neg-x.jpg',
+        },
+        {
+          target: gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
+          url: 'environment-map-pos-y.jpg',
+        },
+        {
+          target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+          url: 'environment-map-neg-y.jpg',
+        },
+        {
+          target: gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
+          url: 'environment-map-pos-z.jpg',
+        },
+        {
+          target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z,
+          url: 'environment-map-neg-z.jpg',
+        },
+      ];
+
+      faceInfos.forEach(face => {
+        const { url, target } = face;
+
+        gl.texImage2D(target, 0, gl.RGBA, 512, 512, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+        const image = new Image();
+        image.src = url;
+        image.addEventListener('load', function () {
+          gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+          gl.texImage2D(target, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+          gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+        });
+      });
+      gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    }
+  </script>
+</body>
+
+</html>

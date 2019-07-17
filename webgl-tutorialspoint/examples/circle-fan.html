@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="./lib.js"></script>
+    <title>Circle</title>
+</head>
+
+<body>
+    <canvas width="300" height="300" id="mc"></canvas>
+    <button id="slices">using small slices</button>
+    <button id="only_lines">using only lines</button>
+    <script id="3d-vertex-shader" type="x-shader/x-vertex">
+    attribute vec2 a_position;
+
+    void main() {
+        gl_Position = vec4(a_position, 0, 1);
+    }
+    </script>
+
+    <script id="3d-fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+
+    void main() {
+        gl_FragColor = vec4(0.7, 0.8, 0, 1);
+    }
+    </script>
+    <script>
+        var only_lines = false;
+        var use_slice = false;
+        window.onload = function () {
+            main();
+            {
+
+                const button = document.querySelector('#slices');
+                button.addEventListener('click', function () {
+                    use_slice = !use_slice;
+                    main();
+                });
+            }
+            {
+                const button = document.querySelector('#only_lines');
+                button.addEventListener('click', function () {
+                    only_lines = !only_lines;
+                    main()
+                })
+            }
+        }
+        function main() {
+            /* Step1: prepare the canvas and get WebGL context */
+            const canvas = document.querySelector('#mc');
+            const gl = canvas.getContext('webgl');
+
+            const circle = circleVertex([0, 0], .5, use_slice);
+
+            const program = createProgramFromScripts(gl, '3d-vertex-shader', '3d-fragment-shader');
+
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            // Turn on culling. By default backfacing triangles
+            // will be culled.
+            gl.enable(gl.CULL_FACE);
+
+            // Enable the depth buffer
+            gl.enable(gl.DEPTH_TEST);
+
+            gl.useProgram(program);
+
+            const positionLocation = gl.getAttribLocation(program, 'a_position');
+
+            {
+                gl.enableVertexAttribArray(positionLocation);
+                const positionBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(circle.data), gl.STATIC_DRAW);
+
+                const size = 2;
+                const type = gl.FLOAT;
+                const normalize = false;
+                const stride = 0;
+                const offset = 0;
+                gl.vertexAttribPointer(
+                    positionLocation, size, type, normalize, stride, offset
+                );
+            }
+
+            if (only_lines) {
+                gl.drawArrays(gl.LINE_STRIP, 0, circle.length);
+            } else {
+                gl.drawArrays(gl.TRIANGLE_FAN, 0, circle.length);
+            }
+
+            checkActiveInfo(gl, program);
+        }
+
+
+        function circleVertex(center, radius, slices) {
+            const data = [
+                center[0], center[1],
+            ];
+            if (radius > 1) {
+                radius = radius - (radius | 0);
+            }
+
+            const step = slices ? Math.random() * 2 : 0.01;
+            const dest = 2 * Math.PI;
+            let i = 1;
+            let sx = 0;
+            let sy = 0;
+            for (let theta = 0; theta < dest; theta += step) {
+                const x = radius * Math.cos(theta) + center[0];
+                const y = radius * Math.sin(theta) + center[1];
+                data.push(x, y);
+                if (theta === 0) {
+                    sx = x;
+                    sy = y;
+                }
+                i += 1;
+            }
+            data.push(sx, sy);
+            i += 1;
+            return { data, length: i };
+        }
+    </script>
+
+</body>
+
+</html>

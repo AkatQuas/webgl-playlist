@@ -4,10 +4,40 @@
 <head>
     <meta charset="UTF-8">
     <title>Triangle</title>
+    <script src="./lib.js"></script>
 </head>
 
 <body>
     <canvas id="canvas"></canvas>
+    <p>we penetrate into the fragment code with <i>gl_FragCoord</i>, <br> the coordinate is in pixels !</p>
+    <pre>
+    void main(void) {
+        if (gl_FragCoord.x < 50.0 && gl_FragCoord.y < 50.0) {
+            gl_FragColor = vec4(1.0, 0.0, 0.5, 1);
+        } else if( gl_FragCoord.x > 100.0 && gl_FragCoord > 100.0) {
+            gl_FragColor = vec4(0.0, 1.0, 0.5, 1);
+        } else {
+            gl_FragColor = vec4(0.0,0.0,0.0, 0.1);
+        }
+    }
+    </pre>
+    <script type="x-shader/vertex-shader" id="vertex-shader">
+        attribute vec3 coordinates;
+        void main(void) {
+            gl_Position = vec4(coordinates, 1.0);
+        }
+    </script>
+    <script type="x-shader/fragment-shader" id="fragment-shader">
+        void main(void) {
+            if (gl_FragCoord.x < 50.0 && gl_FragCoord.y < 50.0) {
+                gl_FragColor = vec4(1.0, 0.0, 0.5, 1);
+            } else if( gl_FragCoord.x > 100.0 && gl_FragCoord.y > 80.0) {
+                gl_FragColor = vec4(0.0, 1.0, 0.5, 1);
+            } else {
+                gl_FragColor = vec4(0.0,0.0,0.0, 0.1);
+            }
+        }
+    </script>
     <script>
         window.onload = function () {
             const canvas = document.querySelector('#canvas');
@@ -46,49 +76,7 @@
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
             /*================ Shaders ====================*/
-
-            // vertex shader source code
-            const vertCode = `
-            attribute vec3 coordinates;
-            void main(void) {
-                gl_Position = vec4(coordinates, 1.0);
-            }`;
-
-            // create a vertex shader object
-            const vertShader = gl.createShader(gl.VERTEX_SHADER);
-
-            // attach vertex shader source code
-            gl.shaderSource(vertShader, vertCode);
-
-            // compile the vertex shader
-            gl.compileShader(vertShader);
-
-            // fragment shader source code
-            const fragCode = `
-            void main(void) {
-                gl_FragColor = vec4(0.0,0.0,0.0, 0.1);
-            }`;
-
-            // create fragment shader source code
-            const fragShader = gl.createShader(gl.FRAGMENT_SHADER);
-
-            // attach fragment shader source code
-            gl.shaderSource(fragShader, fragCode);
-
-            // compile the fragment shader
-            gl.compileShader(fragShader);
-
-            // create a shader program object to store
-            // the combined shader program
-            const shaderProgram = gl.createProgram();
-
-            // attach vertex shader and fragment shader
-            gl.attachShader(shaderProgram, vertShader);
-            gl.attachShader(shaderProgram, fragShader);
-
-            // link both the programs
-            gl.linkProgram(shaderProgram);
-
+            const shaderProgram = createProgramFromScripts(gl, 'vertex-shader', 'fragment-shader');
             // use the combined shader program object
             gl.useProgram(shaderProgram);
 

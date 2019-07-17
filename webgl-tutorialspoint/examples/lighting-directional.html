@@ -81,7 +81,7 @@
       drawScene(0);
 
       function drawScene(now) {
-        const fRotationRadians = now * 0.001;
+        const fRotationRadians = now * 0.002;
         gl.viewport(0, 0, gl.canvas.clientWidth, gl.canvas.clientHeight);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -94,7 +94,6 @@
         const cameraMatrix = m4.lookAt(camera, target, up);
         const viewMatrix = m4.inverse(cameraMatrix);
         m4.yRotate(viewMatrix, fRotationRadians, viewMatrix);
-        m4.zRotate(viewMatrix, fRotationRadians * .5, viewMatrix);
         const viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
         const worldMatrix = m4.yRotation(0);

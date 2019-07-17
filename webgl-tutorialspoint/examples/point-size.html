@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Point Size</title>
+    <script src="./lib.js"></script>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script type="x-shader/x-vertex" id="vertex-shader">
+        attribute vec2 a_position;
+        attribute float a_size;
+        attribute vec3 a_color;
+
+        varying vec3 v_color;
+        void main () {
+            gl_PointSize = a_size;
+            gl_Position = vec4(a_position, 0.0, 1.0);
+            v_color = a_color;
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="fragment-shader">
+        precision mediump float;
+        varying vec3 v_color;
+        void main() {
+            gl_FragColor = vec4(v_color, 0.5);
+        }
+    </script>
+    <script>
+        window.onload = function () {
+            main();
+        }
+        function main() {
+            const canvas = document.querySelector('#canvas');
+            const gl = canvas.getContext('webgl');
+
+            const program = createProgramFromScripts(gl, 'vertex-shader', 'fragment-shader');
+            gl.useProgram(program);
+
+            const mock = mockData();
+            const FSIZE = mock.data.BYTES_PER_ELEMENT;
+
+            const positionLocation = gl.getAttribLocation(program, 'a_position');
+            const sizePosition = gl.getAttribLocation(program, 'a_size');
+            const colorPosition = gl.getAttribLocation(program, 'a_color');
+
+            const buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, mock.data, gl.STATIC_DRAW);
+
+            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, FSIZE * 7, FSIZE * 1);
+            gl.enableVertexAttribArray(positionLocation);
+
+            gl.vertexAttribPointer(sizePosition, 1, gl.FLOAT, false, FSIZE * 7, FSIZE * 3);
+            gl.enableVertexAttribArray(sizePosition);
+
+            gl.vertexAttribPointer(colorPosition, 3, gl.FLOAT, false, FSIZE * 7, FSIZE * 4);
+            gl.enableVertexAttribArray(colorPosition);
+
+            gl.clearColor(0.5, 0.5, 0.5, 0.9);
+
+            // Enable the depth test
+            gl.enable(gl.DEPTH_TEST);
+
+            // Clear the color buffer bit
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            // Set the viewport
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+            // Draw the triangle
+            gl.drawArrays(gl.POINTS, 0, mock.len);
+        }
+
+        function mockData() {
+            const data = [];
+            let i = 10;
+            let len = 0;
+            while (i > 0) {
+                const x = Math.random() * 2 - 1;
+                const y = Math.random() * 2 - 1;
+                const s = (Math.random() * 10 + 3) | 0;
+                const r = Math.random();
+                const g = Math.random();
+                const b = Math.random();
+                data.push(
+                    0, x, y, s, r, g, b
+                )
+                len += 1;
+                i -= 1;
+            }
+            return {
+                data: new Float32Array(data),
+                len,
+            }
+
+        }
+    </script>
+</body>
+
+</html>

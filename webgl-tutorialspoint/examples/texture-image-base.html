@@ -12,6 +12,16 @@
 
 <body>
   <canvas id="canvas" width="600" height="600"> </canvas>
+  <hr>
+  <button id="phlogo">using non-mip images</button>
+  <button id="me-first">using mip images</button>
+  <hr>
+  To achieve opacity, you need to enable blend function like
+
+  <pre>
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  </pre>
   <script type="x-shader/x-vertex" id="vertex-shader">
     attribute vec2 a_position;
     attribute vec2 a_texCoord;
@@ -38,7 +48,7 @@
 
     void main() {
       gl_FragColor = texture2D(u_image, v_texCoord);
-      if (gl_FragColor.a < 0.5) discard;
+      if (gl_FragColor.a < 0.15) discard;
     }
   </script>
 
@@ -57,17 +67,19 @@
         x2, y2,
       ]), gl.STATIC_DRAW);
     }
-    function main() {
+    function main(url) {
       const image = new Image();
-      image.src = 'phlogo.png';
+      image.src = url;
       image.addEventListener('load', function () {
         render(image);
       });
     }
     function render(image) {
       const canvas = document.querySelector('#canvas');
-      const gl = canvas.getContext('webgl');
+      const gl = canvas.getContext('webgl', { alpha: true });
 
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       const program = createProgramFromScripts(gl, 'vertex-shader', 'fragment-shader');
       gl.useProgram(program);
 
@@ -97,6 +109,7 @@
 
         const texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
         // WebGL1 has different requirements for power of 2 images vs
         // images with non power of 2 images so check if the image
         // is a power of 2 in both dimensions.
@@ -115,7 +128,6 @@
           // gl.NEAREST is allowed, instead of `gl.LINEAR`, as neither mipmap.
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         }
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
       }
 
       {
@@ -124,14 +136,22 @@
       }
 
       gl.viewport(0, 0, gl.canvas.clientWidth, gl.canvas.clientHeight);
-      gl.clearColor(0, 0, 0, .3);
+      gl.clearColor(1, 0, 0, 1);
       gl.clear(gl.COLOR_BUFFER_BIT);
       // todo resize the image !
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 
     window.onload = function () {
-      main();
+      ['phlogo', 'me-first'].forEach((k, idx) => {
+        const btn = document.getElementById(k);
+        btn.addEventListener('click', () => {
+          main(`${k}.png`);
+        });
+        if (idx === 1) {
+          btn.click();
+        }
+      });
     }
   </script>
 </body>

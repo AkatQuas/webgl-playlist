@@ -8,10 +8,43 @@
   <title>Image Processing in Basic</title>
   <script src="./lib.js"></script>
   <script src="./m4.js"></script>
+  <style>
+    body {
+      background: #66ccff
+    }
+    .cover {
+      width: 300px;
+      background: #000;
+    }
+    canvas {
+      border: 1px solid #999;
+    }
+    #opacity {
+      position: fixed;
+      background: #000;
+      width: 780px;
+
+      top: 20px;
+      right: 20px;
+      border: 1px solid #999;
+      overflow: scroll;
+      color: beige;
+    }
+  </style>
 </head>
 
 <body>
-  <canvas id="canvas" width="600" height="600"> </canvas>
+  <div id="container" class="cover">
+    <canvas id="canvas" width="300" height="300"> </canvas>
+  </div>
+
+  <div id="opacity">
+    <img src="./me-first.png" alt="">
+    <br>
+    The left is a texture drawn on canvas. The right is an image render by img tag. You can see the canvas lost some opacity.
+    But if we change the background color of the canvas to '#000', the texture gain its opacity correctly.
+    You can see the difference by toggle the background color. <button id="toggle-canvas">toggle canvas background</button>
+  </div>
   <hr>
   <button id="phlogo">using non-mip images</button>
   <button id="me-first">using mip images</button>
@@ -48,7 +81,7 @@
 
     void main() {
       gl_FragColor = texture2D(u_image, v_texCoord);
-      if (gl_FragColor.a < 0.15) discard;
+      if (gl_FragColor.a < 0.05) discard;
     }
   </script>
 
@@ -136,7 +169,7 @@
       }
 
       gl.viewport(0, 0, gl.canvas.clientWidth, gl.canvas.clientHeight);
-      gl.clearColor(1, 0, 0, 1);
+      gl.clearColor(0, 0, 0, .0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       // todo resize the image !
       gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -152,6 +185,19 @@
           btn.click();
         }
       });
+      {
+        const btn = document.getElementById('toggle-canvas');
+        btn.addEventListener('click', function () {
+          const div = document.getElementById('container');
+          const list = div.classList;
+          if (list.contains('cover')) {
+            list.remove('cover');
+          } else {
+            list.add('cover');
+          }
+
+        })
+      }
     }
   </script>
 </body>

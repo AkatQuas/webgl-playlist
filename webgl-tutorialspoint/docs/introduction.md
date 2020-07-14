@@ -2,12 +2,12 @@
 
 OpenGL is a cross-language, cross-platform API for 2D and 3D graphics.
 
-|**API**|**Technology Used**|
-|-|-|
-|OpenGL ES|It is the library for 2D and 3D graphics on embedded systems - including consoles, phones, appliances, and vehicles. OpenGL ES 3.1 is its latest version. It is maintained by the Khronos Group [www.khronos.org](https://www.khronos.org/)|
-|JOGL|It is the Java binding for OpenGL. JOGL 4.5 is its latest version and it is maintained by [jogamp.org](https://jogamp.org/).|
-|WebGL|It is the JavaScript binding for OpenGL. It is maintained by the [khronos group](https://www.khronos.org/).|
-|OpenGLSL|OpenGL Shading Language. It is a programming language which is a companion to OpenGL 2.0 and higher. It is a part of the core OpenGL 4.4 specification. It is an API specifically tailored for embedded systems such as those present on mobile phones and tablets.|
+| **API**   | **Technology Used**                                                                                                                                                                                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OpenGL ES | It is the library for 2D and 3D graphics on embedded systems - including consoles, phones, appliances, and vehicles. OpenGL ES 3.1 is its latest version. It is maintained by the Khronos Group [www.khronos.org](https://www.khronos.org/)                         |
+| JOGL      | It is the Java binding for OpenGL. JOGL 4.5 is its latest version and it is maintained by [jogamp.org](https://jogamp.org/).                                                                                                                                        |
+| WebGL     | It is the JavaScript binding for OpenGL. It is maintained by the [khronos group](https://www.khronos.org/).                                                                                                                                                         |
+| OpenGLSL  | OpenGL Shading Language. It is a programming language which is a companion to OpenGL 2.0 and higher. It is a part of the core OpenGL 4.4 specification. It is an API specifically tailored for embedded systems such as those present on mobile phones and tablets. |
 
 > **Note**: In WebGL, we use GLSL to write shaders.
 
@@ -34,39 +34,13 @@ WebGL follows a client-based rendering approach to render 3D scenes. All the pro
 ```html
 <!DOCTYPE html>
 <html>
-   <canvas id = 'my_canvas'></canvas>
-	
-   <script>
-      var canvas = document.getElementById('my_canvas');
-      var gl = canvas.getContext('experimental-webgl');
-      gl.clearColor(0.9,0.9,0.8,1);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-   </script>
+  <canvas id="my_canvas"></canvas>
+
+  <script>
+    var canvas = document.getElementById("my_canvas");
+    var gl = canvas.getContext("experimental-webgl");
+    gl.clearColor(0.9, 0.9, 0.8, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+  </script>
 </html>
-
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

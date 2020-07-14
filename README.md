@@ -25,3 +25,7 @@ You'd better check the API usage while developing, how can you memorize all the 
 - **[Canvas](https://akatquas.github.io/view/canvasDemos/index.html)**: Draw on canvas in vanilla way.
 
 - **[D3 in Depth](https://d3indepth.com/)**: Tutorial and Document on D3.
+
+- [Computer Graphics Beginner](./ComputerGraphicsBeginner.xmind): An xmind file listing some basic concepts for computer graphics learning for beginners.
+
+  > ![](./Computer-Graphics-Beginner.png)

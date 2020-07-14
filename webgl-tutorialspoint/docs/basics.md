@@ -4,11 +4,11 @@ WebGL is mostly a low-level rasterization API rather than a 3D API. To draw an i
 
 ## Coordinate System
 
-Just like any other 3D system, you will have *x*, *y* and *z* axes in WebGL, where the *z* axis signifies *depth*. The coordinates in WebGL are restricted to `(1, 1, 1)` and `(-1, -1, - 1)`. WebGL won’t display anything that is drawn beyond these boundaries.
+Just like any other 3D system, you will have _x_, _y_ and _z_ axes in WebGL, where the _z_ axis signifies _depth_. The coordinates in WebGL are restricted to `(1, 1, 1)` and `(-1, -1, - 1)`. WebGL won’t display anything that is drawn beyond these boundaries.
 
 ![](../images/coordinate_system.jpg)
 
-The above diagram depicts the WebGL coordinate system. The *z-axis* signifies depth. A positive value of *z* indicates that the object is near the screen/viewer, whereas a negative value of *z* indicates that the object is away from the screen. Likewise, a positive value of *x* indicates that the object is to the right side of the screen and a negative value indicates the object is to the left side. Similarly, positive and negative values of *y* indicate whether the object is at the top or at the bottom portion of the screen.
+The above diagram depicts the WebGL coordinate system. The _z-axis_ signifies depth. A positive value of _z_ indicates that the object is near the screen/viewer, whereas a negative value of _z_ indicates that the object is away from the screen. Likewise, a positive value of _x_ indicates that the object is to the right side of the screen and a negative value indicates the object is to the left side. Similarly, positive and negative values of _y_ indicate whether the object is at the top or at the bottom portion of the screen.
 
 ## Graphics
 
@@ -16,7 +16,7 @@ After getting the WebGL context of the canvas object, you can start drawing grap
 
 ### Vertices
 
-Generally, to draw objects such as a polygon, we mark the points on the plane and join them to form a desired polygon. A **vertex** is a point which defines the conjunction of the edges of a 3D object. It is represented by three floating point values each representing *x*, *y*, *z* axes respectively.
+Generally, to draw objects such as a polygon, we mark the points on the plane and join them to form a desired polygon. A **vertex** is a point which defines the conjunction of the edges of a 3D object. It is represented by three floating point values each representing _x_, _y_, _z_ axes respectively.
 
 ![](../images/vertices_example.jpg)
 
@@ -92,7 +92,7 @@ The following tasks can be performed using vertex shaders:
 
 ### Fragment Shader (Pixel Shader)
 
-A mesh is formed by multiple triangles, and the surface of each of the triangles is known as a **fragment**. Fragment shader is the code that runs on all pixels of every fragment. It is written to calculate and fill the color on *individual pixels*.
+A mesh is formed by multiple triangles, and the surface of each of the triangles is known as a **fragment**. Fragment shader is the code that runs on all pixels of every fragment. It is written to calculate and fill the color on _individual pixels_.
 
 The following tasks can be performed using Fragment shaders:
 
@@ -142,7 +142,7 @@ While developing WebGL applications, we write Shader language code to communicat
 
 1. **Uniforms**: it is optional to associate the uniforms using JavaScript.
 
-1. **Transformation matrix**:  we can create transformation matrix using JavaScript.
+1. **Transformation matrix**: we can create transformation matrix using JavaScript.
 
 Initially we create the data for the required geometry and pass them to the shaders in the form of buffers. The attribute variable of the shader language points to the buffer objects, which are passed as inputs to the vertex shader.
 
@@ -201,4 +201,3 @@ The normalize flag is for all the non floating point types. If you pass in false
 If you set the normalize flag to true then the values of a BYTE (-128 to 127) represent the values -1.0 to +1.0, UNSIGNED_BYTE (0 to 255) become 0.0 to +1.0. A normalized SHORT also goes from -1.0 to +1.0 it just has more resolution than a BYTE.
 
 The most common use for normalized data is for colors. Most of the time colors only go from 0.0 to 1.0. Using a full float each for red, green, blue and alpha would use 16 bytes per vertex per color. If you have complicated geometry that can add up to a lot of bytes. Instead you could convert your colors to UNSIGNED_BYTEs where 0 represents 0.0 and 255 represents 1.0. Now you'd only need 4 bytes per color per vertex, a 75% savings.
-

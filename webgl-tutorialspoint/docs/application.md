@@ -13,119 +13,127 @@ WebGL application code is a combination of JavaScript and OpenGL Shader Language
 ![](../images/application_structure.jpg)
 
 ```html
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-     <title>Document</title>
-</head>
-<body>
-<canvas width="300" height="300" id="mc"></canvas>
-<script >
-    /* Step1: prepare the canvas and get WebGL context */
-    var canvas = document.querySelector('#mc');
-    var gl = canvas.getContext('webgl');
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <canvas width="300" height="300" id="mc"></canvas>
+    <script>
+      /* Step1: prepare the canvas and get WebGL context */
+      var canvas = document.querySelector("#mc");
+      var gl = canvas.getContext("webgl");
 
-    /* Step2: Define the geometry and store it in buffer objects */
-    var vertices = [-0.5, 0.5, -0.5, -0.5, 0.0, -0.5];
+      /* Step2: Define the geometry and store it in buffer objects */
+      var vertices = [-0.5, 0.5, -0.5, -0.5, 0.0, -0.5];
 
-    // create a new buffer object
-    var vertex_buffer = gl.createBuffer();
+      // create a new buffer object
+      var vertex_buffer = gl.createBuffer();
 
-    // bind an empty array buffer to it
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+      // bind an empty array buffer to it
+      gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
 
-    // pass the vertices data to the buffer
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+      // pass the vertices data to the buffer
+      gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array(vertices),
+        gl.STATIC_DRAW
+      );
 
-    // unbind the buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+      // unbind the buffer
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-    /* Step3: Create and compile Shader program */
+      /* Step3: Create and compile Shader program */
 
-    // vertex shader source code
-    var vertCode = 'attribute vec2 coordinates;' + 'void main(void) { gl_Position = vec4(coordinates, 0.0, 1.0); }';
+      // vertex shader source code
+      var vertCode =
+        "attribute vec2 coordinates;" +
+        "void main(void) { gl_Position = vec4(coordinates, 0.0, 1.0); }";
 
-    // create a vertex shader object
-    var vertShader = gl.createShader(gl.VERTEX_SHADER);
+      // create a vertex shader object
+      var vertShader = gl.createShader(gl.VERTEX_SHADER);
 
-    // attach vertex shader source code
-    gl.shaderSource(vertShader, vertCode);
+      // attach vertex shader source code
+      gl.shaderSource(vertShader, vertCode);
 
-    // compile the vertex shader
-    gl.compileShader(vertShader);
+      // compile the vertex shader
+      gl.compileShader(vertShader);
 
-    // fragment shader source code
-    var fragCode = 'void main(void) { gl_FragColor = vec4(0.0, 0.0, 0.0, 0.1);}';
+      // fragment shader source code
+      var fragCode =
+        "void main(void) { gl_FragColor = vec4(0.0, 0.0, 0.0, 0.1);}";
 
-    // create fragment shader object
-    var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+      // create fragment shader object
+      var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
 
-    // attach fragment shader source code
-    gl.shaderSource(fragShader, fragCode);
+      // attach fragment shader source code
+      gl.shaderSource(fragShader, fragCode);
 
-    // compile the fragment shader
-    gl.compileShader(fragShader);
+      // compile the fragment shader
+      gl.compileShader(fragShader);
 
-    // create a shader program object to store combined shader program
-    var shaderProgram = gl.createProgram();
+      // create a shader program object to store combined shader program
+      var shaderProgram = gl.createProgram();
 
-    // attach vertex shader
-    gl.attachShader(shaderProgram, vertShader);
+      // attach vertex shader
+      gl.attachShader(shaderProgram, vertShader);
 
-    // attach fragment shader
-    gl.attachShader(shaderProgram, fragShader);
+      // attach fragment shader
+      gl.attachShader(shaderProgram, fragShader);
 
-    // link both programs
-    gl.linkProgram(shaderProgram);
+      // link both programs
+      gl.linkProgram(shaderProgram);
 
-    // use the combined shader program object
-    gl.useProgram(shaderProgram);
+      // use the combined shader program object
+      gl.useProgram(shaderProgram);
 
-    /* Step4: Associate the sahder program to buffer objects */
+      /* Step4: Associate the sahder program to buffer objects */
 
-    // bind vertex buffer object
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+      // bind vertex buffer object
+      gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
 
-    // get the attribute location
-    var coord = gl.getAttribLocation(shaderProgram, "coordinates");
+      // get the attribute location
+      var coord = gl.getAttribLocation(shaderProgram, "coordinates");
 
-    // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-    var size = 2;          // 2 components per iteration
-    var type = gl.FLOAT;   // the data is 32bit floats
-    var normalize = false; // don't normalize the data
-    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-    var offset = 0;        // start at the beginning of the buffer
-    gl.vertexAttribPointer(coord, size, type, normalize, stride, offset);
+      // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+      var size = 2; // 2 components per iteration
+      var type = gl.FLOAT; // the data is 32bit floats
+      var normalize = false; // don't normalize the data
+      var stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
+      var offset = 0; // start at the beginning of the buffer
+      gl.vertexAttribPointer(coord, size, type, normalize, stride, offset);
 
-    // enable the attribute
-    gl.enableVertexAttribArray(coord);
+      // enable the attribute
+      gl.enableVertexAttribArray(coord);
 
-    /* Step5: Drawing the required object (triangle) */
+      /* Step5: Drawing the required object (triangle) */
 
-    // clear the canvas
-    gl.clearColor(0.5, 0.5, 0.5, 0.9);
+      // clear the canvas
+      gl.clearColor(0.5, 0.5, 0.5, 0.9);
 
-    // enable the depth test
-    gl.enable(gl.DEPTH_TEST);
+      // enable the depth test
+      gl.enable(gl.DEPTH_TEST);
 
-    // clear the color buffer bit
-    gl.clear(gl.COLOR_BUFFER_BIT);
+      // clear the color buffer bit
+      gl.clear(gl.COLOR_BUFFER_BIT);
 
-    // set the view port
-    gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
+      // set the view port
+      gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
 
-    // draw the triangles
-    var primitiveType = gl.TRIANGLES;
-    var offset = 0;
-    var count = 3;
-    gl.drawArrays(primitiveType, offset, count);
-
-</script>
-
-</body>
+      // draw the triangles
+      var primitiveType = gl.TRIANGLES;
+      var offset = 0;
+      var count = 3;
+      gl.drawArrays(primitiveType, offset, count);
+    </script>
+  </body>
 </html>
 ```
 
@@ -133,23 +141,23 @@ If you observe the above program carefully, we have followed five sequential ste
 
 1. **Prepare the canvas and get WebGL rendering context**
 
-    We get the current HTML canvas object and obtain its WebGL rendering context.
+   We get the current HTML canvas object and obtain its WebGL rendering context.
 
 1. **Define the geometry and store it in buffer objects**
 
-    We define the attributes of the geometry such as vertices, indices, color, etc., and store them in the JavaScript arrays. Then we create one or more buffer objects and pass the arrays containing the data to the respective buffer object.
+   We define the attributes of the geometry such as vertices, indices, color, etc., and store them in the JavaScript arrays. Then we create one or more buffer objects and pass the arrays containing the data to the respective buffer object.
 
 1. **Create nad compile shader programs**
 
-    We write vertex shader and fragment shader programs, compile them, and create a combined program by linking these two programs.
+   We write vertex shader and fragment shader programs, compile them, and create a combined program by linking these two programs.
 
 1. **Associate the shader programs with buffer objects**
 
-    We associate the buffer objects and the combined shader program.
+   We associate the buffer objects and the combined shader program.
 
 1. **Drawing the required object**
 
-    This step includes operations such as clearing the color, clearing the buffer bit, enabling the depth test, setting the view port, etc. Finally you need to draw the required primitives using one of the methods - `drawArrays()` or `drawElements`.
+   This step includes operations such as clearing the color, clearing the buffer bit, enabling the depth test, setting the view port, etc. Finally you need to draw the required primitives using one of the methods - `drawArrays()` or `drawElements`.
 
 # Context
 
@@ -167,19 +175,22 @@ Within the body of the HTML-5 document, write a canvas, give it an id. Also, we 
 
 ```html
 <html>
-<head>
-<meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-     <title>Document</title>
-</head>
-<body>
-<canvas id="mc"></canvas>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <canvas id="mc"></canvas>
 
-<script>
-    var canvas = document.querySelector('#mc');
-</script>
-</body>
+    <script>
+      var canvas = document.querySelector("#mc");
+    </script>
+  </body>
 </html>
 ```
 
@@ -193,16 +204,16 @@ canvas.getContext(contextType, contextAttributes);
 
 Pass the string `"webgl"` or `"experimental-webgl"` as the `contentType`. The `contextAttributes` parameter is optional.
 
->The parameter `WebGLContextAttributes` is not mandatory. This parameter provides various options that accept Boolean values as listed below:
+> The parameter `WebGLContextAttributes` is not mandatory. This parameter provides various options that accept Boolean values as listed below:
 >
-> |Attribute|Description|
-> |:-:|-|
-> |alpha|If its value is true, it provides an alpha buffer to the canvas. By default, its value is true.|
-> |depth|If its value is true, you will get a drawing buffer which contains a depth buffer of at least 16 bits. By default, its value is true.|
-> |stencil|If its value is true, you will get a drawing buffer which contains a stencil buffer of at least 8 bits. By default, its value is false.|
-> |antialias|If its value is true, you will get a drawing buffer which performs anti-aliasing. By default, its value is true.|
-> |premultipliedAlpha|If its value is true, you will get a drawing buffer which contains colors with pre-multiplied alpha. By default, its value is true.|
-> |preserveDrawingBuffer|If its value is true, the buffers will not be cleared and will preserve their values until cleared or overwritten by the author. By default, its value is false.|
+> |       Attribute       | Description                                                                                                                                                      |
+> | :-------------------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+> |         alpha         | If its value is true, it provides an alpha buffer to the canvas. By default, its value is true.                                                                  |
+> |         depth         | If its value is true, you will get a drawing buffer which contains a depth buffer of at least 16 bits. By default, its value is true.                            |
+> |        stencil        | If its value is true, you will get a drawing buffer which contains a stencil buffer of at least 8 bits. By default, its value is false.                          |
+> |       antialias       | If its value is true, you will get a drawing buffer which performs anti-aliasing. By default, its value is true.                                                 |
+> |  premultipliedAlpha   | If its value is true, you will get a drawing buffer which contains colors with pre-multiplied alpha. By default, its value is true.                              |
+> | preserveDrawingBuffer | If its value is true, the buffers will not be cleared and will preserve their values until cleared or overwritten by the author. By default, its value is false. |
 >
 > At the time of creating the WebGLRendering Context, a drawing buffer is created. The Context object manages OpenGL state and renders to the drawing buffer.
 >
@@ -210,11 +221,11 @@ Pass the string `"webgl"` or `"experimental-webgl"` as the `contentType`. The `c
 >
 > It is the principal interface in WebGL. It represents the WebGL drawing context. This interface contains all the methods used to perform various tasks on the drawing buffer. The attributes of this interface are given in the following table.
 >
-> |Attributes|Description|
-> |:-:|-|
-> |Canvas|This is a reference to the canvas element that created this context.|
-> |drawingBufferWidth|This attributes represents the actual width of the drawing buffer. It may differ from the width attribute of the HTMLCanvasElement.|
-> |drawingBufferHeight|This attributes represents the actual width of the drawing buffer. It may differ from the width attribute of the HTMLCanvasElement.|
+> |     Attributes      | Description                                                                                                                         |
+> | :-----------------: | ----------------------------------------------------------------------------------------------------------------------------------- |
+> |       Canvas        | This is a reference to the canvas element that created this context.                                                                |
+> | drawingBufferWidth  | This attributes represents the actual width of the drawing buffer. It may differ from the width attribute of the HTMLCanvasElement. |
+> | drawingBufferHeight | This attributes represents the actual width of the drawing buffer. It may differ from the width attribute of the HTMLCanvasElement. |
 
 # Geometry
 
@@ -232,9 +243,12 @@ For example, if we want to create a triangle which lies on the coordinates `{ (5
 
 ```javascript
 const vertices = [
-    0.5, 0.5, // vertex 1
-    0.5, -0.5, // vertex 2
-    -0.5, -0.5 // vertex 3
+  0.5,
+  0.5, // vertex 1
+  0.5,
+  -0.5, // vertex 2
+  -0.5,
+  -0.5, // vertex 3
 ];
 ```
 
@@ -359,7 +373,7 @@ Shaders are the programs that run on GPU. Shaders are written in OpenGL ES Shade
 ## Data type
 
 |           Type            | Description                          |
-|:-------------------------:|:-------------------------------------|
+| :-----------------------: | :----------------------------------- |
 |          `void`           | Represents an empty value            |
 |          `bool`           | Accepts `true` or `false`            |
 |           `int`           | A signed integer data type           |
@@ -391,7 +405,7 @@ It is able to swizzle vec components which means you can repeat or swap componen
 There are three main qualifiers in OpenGL ES SL:
 
 |  Qualifier  |                                                                                                    Description                                                                                                    |
-|:-----------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| :---------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | `attribute` |                      This qualifier acts as a link between a vertex shader and OpenGL ES for per-vertex data. The value of this attribute changes for every execution of the vertex shader.                       |
 |  `uniform`  | This qualifier links shader programs and the WebGL application. Unlike attribute, the values of uniforms do not change. Uniforms are read-only; you can use them with any basic data types to declare a variable. |
 |  `varying`  |        This qualifier forms a link between a vertex shader and fragment shader for interpolated data. It can be used with the following data types - float, vec2, vec3, vec4, mat2, mat3, mat4, or arrays.        |
@@ -414,7 +428,7 @@ In the ES GL code of vertex shader, programmers have to define attributes to han
 OpenGL ES SL provides the following predefined variables for vertex shader:
 
 |         Variables          |                               Description                               |
-|:--------------------------:|:-----------------------------------------------------------------------:|
+| :------------------------: | :---------------------------------------------------------------------: |
 |   highp vec4 gl_Position   |                    Holds the position of the vertex                     |
 | mediump float gl_PointSize | Holds the transformed point size. The units for the variable are pixels |
 
@@ -451,7 +465,7 @@ A **mesh** is formed by multiple triangles, and the surface of each triangle is 
 OpenGL ES SL provides the following predefined variables for fragment shader:
 
 |          Variables          |                              Description                              |
-|:---------------------------:|:---------------------------------------------------------------------:|
+| :-------------------------: | :-------------------------------------------------------------------: |
 |  mediump vec4 gl_FragCoord  |          Holds the fragment position within the frame buffer          |
 |     bool gl_FrontFacing     |      Holds the fragment that belongs to a front-facing primitive      |
 | mediump vec2 gl_PointCoord  | Holds the fragment position within a point (point rasterization only) |
@@ -471,7 +485,7 @@ In the above code, the **color** value is stored in the variable `gl_FragColor`.
 Since shaders are independent programmes, we can write them as a separate script and use in the application. Or, you can store them directly in **string** format, as shown below:
 
 ```javascript
-var vertCode=`
+var vertCode = `
 attribute vec2 coordinates;
 void main(void) {
     gl_Position = vec4(coordinates, 0.0, 1.0);
@@ -522,7 +536,7 @@ This method accepts the shader program object as a parameter. After creating a s
 Let's look at an example:
 
 ```javascript
-const vertCode =`
+const vertCode = `
 attribute vec3 coordinates;
 void main(void) {
     gl_Position = vec4(coordinates, 1.0);
@@ -611,7 +625,7 @@ ulong getAttribLocation(Object program, string name)
 This method accepts the vertex shader program object and the attribute values of the vertex shader program. For example,
 
 ```javascript
-const coordinatesVar = gl.getAttribLocation(shaderProgram, 'coordinates');
+const coordinatesVar = gl.getAttribLocation(shaderProgram, "coordinates");
 ```
 
 ## Point the Attribute to a VBO
@@ -639,7 +653,7 @@ This method accepts six parameters and they are discussed below.
 For example:
 
 ```javascript
-gl.vertexAttribPointer(coordinatesVar,3, gl.FLOAT, false,0,0);
+gl.vertexAttribPointer(coordinatesVar, 3, gl.FLOAT, false, 0, 0);
 ```
 
 ## Enabling the Attribute
@@ -675,7 +689,7 @@ If you draw a model using `drawArrays()` method, then WebGL, while rendering the
 For example, if you want to draw a single triangle using `drawArray()` method, then you have to pass three vertices and call the `drawArrays()` method:
 
 ```javascript
-const vertices = [-0.5,-0.5, -0.25, 0.5, 0.0, -0.5];
+const vertices = [-0.5, -0.5, -0.25, 0.5, 0.0, -0.5];
 gl.drawArrays(gl.TRIANGLES, 0, 3);
 ```
 
@@ -684,7 +698,20 @@ gl.drawArrays(gl.TRIANGLES, 0, 3);
 And suppose you want to draw contiguous triangles, then you have to pass the next three vertices in order in the vertex buffer and mention the number of elements to be rendered as 6.
 
 ```javascript
-const vertices = [-0.5,-0.5, -0.25,0.5, 0.0,-0.5, 0.0,-0.5, 0.25,0.5, 0.5,-0.5,];
+const vertices = [
+  -0.5,
+  -0.5,
+  -0.25,
+  0.5,
+  0.0,
+  -0.5,
+  0.0,
+  -0.5,
+  0.25,
+  0.5,
+  0.5,
+  -0.5,
+];
 gl.drawArrays(gl.TRIANGLES, 0, 6);
 ```
 
@@ -728,11 +755,21 @@ If you want to draw contagious triangles using `drawElements()` method, simply a
 
 ```javascript
 const vertices = [
-    -0.5,-0.5,0.0,
-    -0.25,0.5,0.0,
-    0.0,-0.5,0.0,
-    0.25,0.5,0.0,
-    0.5,-0.5,0.0
+  -0.5,
+  -0.5,
+  0.0,
+  -0.25,
+  0.5,
+  0.0,
+  0.0,
+  -0.5,
+  0.0,
+  0.25,
+  0.5,
+  0.0,
+  0.5,
+  -0.5,
+  0.0,
 ];
 const indices = [0, 1, 2, 2, 3, 4];
 gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
@@ -748,28 +785,28 @@ Before drawing a primitive, you need to perform a few operations, which are expl
 
 1. Clear the Canvas
 
-    First of all, you should clear the canvas, using `clearColor()` method. You can pass the RGBA values of a desired color as parameter to this method. Then WebGL clears the canvas and fills it with the specified color. Therefore, you can use this method for setting the background color.
+   First of all, you should clear the canvas, using `clearColor()` method. You can pass the RGBA values of a desired color as parameter to this method. Then WebGL clears the canvas and fills it with the specified color. Therefore, you can use this method for setting the background color.
 
 1. Enable Depth Test
 
-    Enable the depth test using the `enable()` method like this:
+   Enable the depth test using the `enable()` method like this:
 
-    ```javascript
-    gl.enable(gl.DEPTH_TEST);
-    ```
+   ```javascript
+   gl.enable(gl.DEPTH_TEST);
+   ```
 
 1. Clear the Color BufferBit
 
-    Clear the color as well as the depth buffer by using the `clear()` method:
+   Clear the color as well as the depth buffer by using the `clear()` method:
 
-    ```javascript
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    ```
+   ```javascript
+   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+   ```
 
 1. Set the View Port
 
-    The view port represents a rectangular viewable area that contains the rendering results of the drawing buffer. You can set the dimensions of the view port using `viewport()` method. In the following code, the view port dimensions are set to the canvas dimensions.
+   The view port represents a rectangular viewable area that contains the rendering results of the drawing buffer. You can set the dimensions of the view port using `viewport()` method. In the following code, the view port dimensions are set to the canvas dimensions.
 
-    ```javascript
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    ```
+   ```javascript
+   gl.viewport(0, 0, canvas.width, canvas.height);
+   ```

@@ -18,6 +18,8 @@ You'd better check the API usage while developing, how can you memorize all the 
 
 - **[WebGL Fundamentals](https://webglfundamentals.org/)**: Amazing collection of articles that teach WebGL from ground up.
 
+- [Ray Tracer](raytracer/README.md): A small project with self-implemented ray tracing to render image offline.
+
 - [Three Js](three/README.md)
 
 - [SVG](svg/README.md)
